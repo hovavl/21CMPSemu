@@ -4,7 +4,7 @@ import random
 import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 data = pickle.load(
-    open('/Users/hovavlazare/PycharmProjects/global_signal_model/ps_data/bigger_data_set_2023-03-12.pk', 'rb'))
+    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/bigger_data_set_2023-03-12.pk', 'rb'))
 
 
 def classify_signal(signal):
@@ -94,7 +94,7 @@ myClassifier = SignalClassifier(params_train_dict=training_params, params_val_di
                                 reg_factor=0.005,
                                 dropout_rate=0.1,
                                 activation='relu', name='classify_NN',
-                                files_dir='/Users/hovavlazare/PycharmProjects/global_signal_model/classifier_files',
+                                files_dir='/Users/hovavlazare/GITs/21CMPSemu/classifier_files',
 
                       )
 
@@ -112,4 +112,6 @@ plt.show()
 
 test_scr = myClassifier.evaluate(testing_params, testing_features)
 predictions = myClassifier.predict(testing_params)
+myClassifier.save('/Users/hovavlazare/GITs/21CMPSemu/classifier_files')
+
 x=1
