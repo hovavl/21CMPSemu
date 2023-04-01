@@ -4,14 +4,14 @@ import pickle
 from NN_emulator import emulator
 import random
 
-x=1
-with open('/Users/hovavlazare/PycharmProjects/global_signal_model/log_ps_model_files/training_files.pk', 'rb') as f:
+
+with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/PycharmProjects/global_signal_model/log_ps_model_files',
-                      name='small_data_set_emulator')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4',
+                      name='emulator_10-4')
 
 print(myEmulator.NN.summary())
 

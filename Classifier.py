@@ -39,7 +39,7 @@ class SignalClassifier:
             self.params_train_arr = self.preprocess_params_arr(self.params_train_arr)
             self.params_val_arr = self.preprocess_params_dict(self.params_val_dict)
 
-        self.NN = self.create_model(self.params_train_arr.shape[1], hidden_dims, self.features_train.shape[1],
+            self.NN = self.create_model(self.params_train_arr.shape[1], hidden_dims, self.features_train.shape[1],
                                     activation, dropout_rate, reg_factor, name)
 
     def create_model(self, input_dim, hidden_dims, out_dim, activation, dropout_rate, reg_factor, name):

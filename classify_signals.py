@@ -91,7 +91,7 @@ myClassifier = SignalClassifier(params_train_dict=training_params, params_val_di
                                 features_val=val_features,
                                 param_labels=model_params,
                                 hidden_dims=[128, 512, 256],
-                                reg_factor=0.005,
+                                reg_factor=0.00,
                                 dropout_rate=0.1,
                                 activation='relu', name='classify_NN',
                                 files_dir='/Users/hovavlazare/GITs/21CMPSemu/classifier_files',

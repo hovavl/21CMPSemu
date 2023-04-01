@@ -3,20 +3,22 @@ import pickle
 import random
 from NN_emulator import emulator, CustomLayer
 import matplotlib.pyplot as plt
-import h5py
+from Classifier import SignalClassifier
 
 data = pickle.load(
-    open('/Users/hovavlazare/PycharmProjects/global_signal_model/ps_data/bigger_data_set_2023-03-12.pk', 'rb'))
-extra_data = pickle.load(
-    open('/Users/hovavlazare/PycharmProjects/global_signal_model/ps_data/extra_data_spline.pk', 'rb'))
+    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/bigger_data_set_2023-03-30_10.4.pk', 'rb'))
+
+
+# extra_data = pickle.load(
+#     open('/Users/hovavlazare/PycharmProjects/global_signal_model/ps_data/extra_data_spline.pk', 'rb'))
 
 
 def classify_signal(signal):
     minimum = np.min(signal)
     maximum = np.max(signal)
-    if minimum != signal[0] and np.all(signal > 0.5):
+    if minimum != signal[0] and maximum - minimum > 5 and np.all(signal > 0.5):
         return 5
-    elif maximum - minimum < 1 and np.all(signal > 0.5):
+    elif maximum - minimum < 5 and np.all(signal > 0.5):
         return 0
     elif maximum - minimum < 10 and np.all(signal > 0.5):
         return 1
@@ -31,9 +33,10 @@ def classify_signal(signal):
 
 def organize_data(data):
     params = []
+    class_0_params = []
     powerspectra = []
     class_counter = {}
-    for i in range(1,6):
+    for i in range(0, 6):
         class_counter[i] = 0
 
     model_params = list(data[0]['model params'].keys())
@@ -47,16 +50,37 @@ def organize_data(data):
             reduced_sample = sample[1]['ps'][30:89]
             class_num = classify_signal(reduced_sample)
 
-            if class_num > 0 and class_counter[class_num] < 3500:
+            if (0 < class_num < 6 and class_counter[class_num] < 2500): #or (class_num == 5 and class_counter[5] < 7000):
                 class_counter[class_num] += 1
                 params += [list(sample[1]['model params'].values())]
                 powerspectra += [reduced_sample]
-            if np.all(np.array(list(class_counter.values())) > 3400):
+            elif class_num == 0 and class_counter[0] < 1000:
+                class_0_params += [list(sample[1]['model params'].values())]
+                class_counter[0] += 1
+            if np.all(np.array(list(class_counter.values()))[1:5] > 2500):
                 break
     powerspectra = np.array(powerspectra)
     params = np.array(params)
     k_range = data[0]['k'][30:89]
-    return powerspectra, params, model_params, k_range
+    return powerspectra, params, model_params, k_range, class_0_params
+
+
+myClassifier = SignalClassifier(restore=True,
+                                files_dir='/Users/hovavlazare/GITs/21CMPSemu/classifier_files',
+                                name='classify_NN')
+
+
+def classify_test_data(test_params_dict, test_features):
+    classes = np.squeeze(np.round(myClassifier.predict(test_params_dict)).astype(bool))
+    test_params_arr = np.array([test_params_dict[k] for k in test_params_dict.keys()]).T
+    filter_test_params_arr = test_params_arr[classes]
+    filter_test_params_dict = dict(zip(list(test_params_dict.keys()), filter_test_params_arr))
+    filter_features = test_features[classes]
+    x=1
+    return filter_test_params_dict, filter_features
+
+
+
 
 
 def divide_data(params, powerspectra, model_params, tr_split, val_split):
@@ -73,7 +97,6 @@ def divide_data(params, powerspectra, model_params, tr_split, val_split):
     test_params = s_params[int(s_params.shape[0] * (tr_split + val_split)) + 1:, :]
     test_powerspectra = s_powerspectra[int(s_powerspectra.shape[0] * (tr_split + val_split)) + 1:, :]
 
-    x = 1
     tr_par_dict = {}
     val_par_dict = {}
     test_par_dict = {}
@@ -84,103 +107,10 @@ def divide_data(params, powerspectra, model_params, tr_split, val_split):
     return tr_par_dict, tr_powerspectra, val_par_dict, val_powerspectra, test_par_dict, test_powerspectra
 
 
-
-
-
-def split_data(training_split, val_split, data, extra_data):
-    training_params = {}
-    training_powerspectra = []
-    testing_params = {}
-    testing_powerspectra = []
-    val_params = {}
-    val_powerspectra = []
-    model_params = list(data[0]['model params'].keys())
-    # model_params += ['tau', 'x_HI']
-    for param in model_params:
-        training_params[param] = np.array([])
-        testing_params[param] = np.array([])
-        val_params[param] = np.array([])
-
-    # testing split is allways the last 0.1 percent
-    # all the data between training split and 0.9 is not used
-    # in order to use all the data use training split = 0.9
-
-    my_items = list(data.items())
-    # random.shuffle(my_items)
-    for i, sample in enumerate(my_items):
-        if i <= len(my_items) * training_split:
-            reduced_sample = sample[1]['ps'][85:]
-            if np.all(reduced_sample > 0.1):
-                # if (np.max(reduced_sample) - np.min(reduced_sample)) > 100 and np.all(reduced_sample > 0.1):
-                # if np.any(reduced_sample < 5) and np.all(reduced_sample > 0.1):  # and sample[1]['model params']['L_X'] > 38:
-                for param in sample[1]['model params'].items():
-                    training_params[param[0]] = np.append(training_params[param[0]], param[1])
-                # training_params['tau'] =np.append(training_params['tau'], sample[1]['tau'])
-                # training_params['x_HI'] = np.append(training_params['x_HI'], sample[1]['xH'])
-                training_powerspectra += [reduced_sample]
-
-        elif i <= len(data.items()) * (training_split + val_split):
-            reduced_sample = sample[1]['ps'][85:]
-            if np.all(reduced_sample > 0.1):
-                # if (np.max(reduced_sample) - np.min(reduced_sample)) > 100 and np.all(reduced_sample > 0.1):
-                # if np.any(reduced_sample < 5) and np.all(reduced_sample > 0.1):  # and sample[1]['model params']['L_X'] > 38:
-                for param in sample[1]['model params'].items():
-                    val_params[param[0]] = np.append(val_params[param[0]], param[1])
-                # val_params['tau'] = np.append(val_params['tau'], sample[1]['tau'])
-                # val_params['x_HI'] = np.append(val_params['x_HI'], sample[1]['xH'])
-                val_powerspectra += [reduced_sample]
-
-        elif i > len(data.items()) * (training_split + val_split):  # (training_split + val_split):
-            reduced_sample = sample[1]['ps'][85::]
-            if np.all(reduced_sample > 0.1):
-                # if (np.max(reduced_sample) - np.min(reduced_sample)) > 100 and np.all(reduced_sample > 0.1):
-                # if np.any(reduced_sample < 5) and np.all(reduced_sample > 0.1):  # and sample[1]['model params']['L_X'] > 38:
-                for param in sample[1]['model params'].items():
-                    testing_params[param[0]] = np.append(testing_params[param[0]], param[1])
-                # testing_params['tau'] = np.append(testing_params['tau'], sample[1]['tau'])
-                # testing_params['x_HI'] = np.append(testing_params['x_HI'], sample[1]['xH'])
-                testing_powerspectra += [reduced_sample]
-
-    # my_items = list(extra_data.items())
-    # random.shuffle(my_items)
-    # for i, sample in enumerate(my_items):
-    #     if i <= len(extra_data.items()) * training_split:
-    #         if np.any(sample[1]['ps'] > 1) and sample[1]['model params']['L_X'] > 38:
-    #             for param in sample[1]['model params'].items():
-    #                 training_params[param[0]] = np.append(training_params[param[0]], param[1])
-    #             training_powerspectra += [sample[1]['ps'][30:]]
-    #
-    #     elif i <= len(extra_data.items()) * (training_split + val_split):
-    #         if np.any(sample[1]['ps'] > 1) and sample[1]['model params']['L_X'] > 38:
-    #             for param in sample[1]['model params'].items():
-    #                 val_params[param[0]] = np.append(val_params[param[0]], param[1])
-    #             val_powerspectra += [sample[1]['ps'][30:]]
-    #
-    #     elif i > len(extra_data.items()) * (training_split + val_split):
-    #         if np.any(sample[1]['ps'] > 1) and sample[1]['model params']['L_X'] > 38:
-    #             for param in sample[1]['model params'].items():
-    #                 testing_params[param[0]] = np.append(testing_params[param[0]], param[1])
-    #             testing_powerspectra += [sample[1]['ps'][30:]]
-
-    testing_features = np.array(testing_powerspectra)
-    features = np.array(training_powerspectra)
-    val_features = np.array(val_powerspectra)
-    k_range = data[0]['k'][30:89]
-
-    print('model params: ', model_params)
-    print('k modes: ', f'from {min(k_range)} to {max(k_range)} with {len(k_range)} k bins')
-    print('training set size: ' + str(len(training_params['F_ESC10'])))
-    print('features shape: ', features.shape)
-    print('validation set size: ', val_features.shape[0])
-    print('testing set size: ', testing_features.shape[0])
-    return training_params, features, val_params, val_features, testing_params, testing_features, k_range, model_params
-
-
-powerspectra, params, model_params, k_range = organize_data(data)
+powerspectra, params, model_params, k_range, class_0_params = organize_data(data)
 
 training_params, features, val_params, val_features, testing_params, testing_features = \
     divide_data(params, powerspectra, model_params, 0.85, 0.10)
-
 
 # training_params, features, val_params, val_features, testing_params, testing_features, k_range, model_params = \
 #     split_data(0.85, 0.1,
@@ -188,12 +118,14 @@ training_params, features, val_params, val_features, testing_params, testing_fea
 training_params['NU_X_THRESH'] = training_params['NU_X_THRESH'] / 1000
 val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
 testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
+f_test_params, f_test_features = classify_test_data(testing_params, testing_features)
+
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
-with open('/Users/hovavlazare/PycharmProjects/global_signal_model/log_ps_model_files/training_files.pk', 'wb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'wb') as f:
     pickle.dump(files, f)
 
-with open('/Users/hovavlazare/PycharmProjects/global_signal_model/log_ps_model_files/training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
@@ -240,8 +172,9 @@ with open('/Users/hovavlazare/PycharmProjects/global_signal_model/log_ps_model_f
 
 
 myEmulator = emulator(training_params, val_params, features, val_features, model_params,
-                      hidden_dims=[288, 512, 512, 288, 512, 1024], features_band=k_range, reg_factor=0.0, dropout_rate=0.0,
-                      use_log=False, activation='linear', name='small_data_set_very_deep_emulator'
+                      hidden_dims=[288, 512, 512, 288, 512, 1024], features_band=k_range, reg_factor=0.0,
+                      dropout_rate=0.0,
+                      use_log=False, activation='linear', name='emulator_10-4',
                       )
 
 print(myEmulator.NN.summary())
@@ -314,4 +247,5 @@ for i in range(3):
 
 plt.show()
 
-myEmulator.save('/Users/hovavlazare/PycharmProjects/global_signal_model/log_ps_model_files')
+myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4')
+x = 1
