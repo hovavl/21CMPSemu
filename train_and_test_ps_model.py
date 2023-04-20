@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 
 data = pickle.load(
-    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/bigger_data_set_2023-03-30_10.4.pk', 'rb'))
+   open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/centered_samples_10-4_2023-04-14.pk', 'rb'))
 
 
 # extra_data = pickle.load(
@@ -16,9 +16,9 @@ data = pickle.load(
 def classify_signal(signal):
     minimum = np.min(signal)
     maximum = np.max(signal)
-    if minimum != signal[0] and maximum - minimum > 5 and np.all(signal > 0.5):
+    if minimum != signal[0] and maximum - minimum > 1 and np.all(signal > 0.5):
         return 5
-    elif maximum - minimum < 5 and np.all(signal > 0.5):
+    elif maximum - minimum < 1 and np.all(signal > 0.5):
         return 0
     elif maximum - minimum < 10 and np.all(signal > 0.5):
         return 1
@@ -76,7 +76,6 @@ def classify_test_data(test_params_dict, test_features):
     filter_test_params_arr = test_params_arr[classes]
     filter_test_params_dict = dict(zip(list(test_params_dict.keys()), filter_test_params_arr))
     filter_features = test_features[classes]
-    x=1
     return filter_test_params_dict, filter_features
 
 
@@ -110,7 +109,7 @@ def divide_data(params, powerspectra, model_params, tr_split, val_split):
 powerspectra, params, model_params, k_range, class_0_params = organize_data(data)
 
 training_params, features, val_params, val_features, testing_params, testing_features = \
-    divide_data(params, powerspectra, model_params, 0.85, 0.10)
+    divide_data(params, powerspectra, model_params, 0.80, 0.10)
 
 # training_params, features, val_params, val_features, testing_params, testing_features, k_range, model_params = \
 #     split_data(0.85, 0.1,
@@ -122,20 +121,13 @@ f_test_params, f_test_features = classify_test_data(testing_params, testing_feat
 
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
-with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'wb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_10-4/centered_training_files.pk', 'wb') as f:
     pickle.dump(files, f)
 
+exit(0)
 with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
-
-# tmp = np.any(testing_features < 0, axis=1)
-# a = np.sum(tmp)
-# tmp1 = np.sum(features, axis=1)
-# a1 = np.min(tmp1)
-# arg = np.argmin(tmp1)
-# f = features[arg,:]
-# x=5
 
 
 # tr_splits = [0.2, 0.3, 0.4, 0.5, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85]

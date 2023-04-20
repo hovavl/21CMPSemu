@@ -3,15 +3,27 @@ from matplotlib import pyplot as plt
 import pickle
 from NN_emulator import emulator
 import random
+import matplotlib as mpl
+import matplotlib.lines as mlines
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'rb') as f:
+plt.rc('text', usetex=True)  # render font for tex
+plt.rc('font', family='TimesNewRoman')  # use font
+plt.rcParams['font.family'] = 'DeJavu Serif'
+plt.rcParams['font.serif'] = ['Times New Roman']
+#plt.rcParams['axes.linewidth'] = 3
+plt.rcParams['axes.titley'] = 1.0  # y is in axes-relative coordinates.
+plt.rcParams['axes.titlepad'] = 15  # pad is in points...
+mpl.rcParams['figure.dpi'] = 300
+
+
+with open('/Users/hovavlazare/GITs/21CMPSemu/best_model_files_7-9/best_model_training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
-
+x=1
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4',
-                      name='emulator_10-4')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/best_model_files_7-9',
+                      name='best_model_emulator')
 
 print(myEmulator.NN.summary())
 
@@ -21,12 +33,34 @@ for key in testing_params.keys():
     filter_test_params[key] = testing_params[key][ind]
 filter_test_features = testing_features[ind, :]
 
-test_loss, pred = myEmulator.test_MRE(filter_test_params, filter_test_features)
+# filter_test_params = testing_params
+# filter_test_features = testing_features
+print(filter_test_features.shape[0])
+test_loss, pred = myEmulator.test_APE(filter_test_params, filter_test_features)
+
+red_line = mlines.Line2D([], [], color='red', label='median')
+
+plt.boxplot(test_loss, whis=(5, 95), whiskerprops={'ls': 'dotted', 'linewidth': 1, 'color': 'b'},
+              medianprops={'color': 'r', 'linewidth': 0.5}, showfliers=True)
+plt.title('Testing set statistics z = 7.9')
+plt.ylabel(r'$\frac{|y_{real} - y_{pred}|}{y_{real}}$', fontdict={'fontsize': 16})
+plt.legend(handles=[red_line], loc='upper right', frameon=False, prop={"size": 16})
+plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/results_1')
+
+plt.show()
+
+
+
+exit(0)
 
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(30, 8))
 
 ax[0].boxplot(test_loss, whis=(5, 95), whiskerprops={'ls': 'dotted', 'linewidth': 1, 'color': 'b'},
               medianprops={'color': 'r', 'linewidth': 0.5}, showfliers=True)
+
+
+
+
 worst_ind = np.argmax(test_loss)
 
 # worst_params = {}

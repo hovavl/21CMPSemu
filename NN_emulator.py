@@ -84,7 +84,7 @@ class emulator:
         params_arr = self.dict_to_ordered_arr_np(params_dict)
         return self.preprocess_params_arr(params_arr)
 
-    def create_model(self, input_dim, hidden_dims, out_dim, activation, dropout_rate, reg_factor, name):
+    def create_model(self, input_dim, hidden_dims, out_dim, activation, dropout_rate, reg_factor, name, use_custom_layer=True, use_BatchNorm=True):
         layers = []
 
         input_layer = tf.keras.Input(shape=(input_dim,))
@@ -99,12 +99,12 @@ class emulator:
             if dropout_rate != 0.0:
                 d_layer = tf.keras.layers.Dropout(rate=dropout_rate)
                 layers.append(d_layer)
-
-            layer2 = CustomLayer(units=dim, trainable=True)
-            layers.append(layer2)
-
-            layer3 = tf.keras.layers.BatchNormalization(trainable=True)
-            layers.append(layer3)
+            if use_custom_layer:
+                layer2 = CustomLayer(units=dim, trainable=True)
+                layers.append(layer2)
+            if use_BatchNorm:
+                layer3 = tf.keras.layers.BatchNormalization(trainable=True)
+                layers.append(layer3)
 
         output_layer = tf.keras.layers.Dense(out_dim)
         layers.append(output_layer)
@@ -175,6 +175,7 @@ class emulator:
               stop_patience_value=15,
               decay_patience_value=5,
               verbose=False
+
               ):
 
         y_train = self.preprocess_features(self.features_train)
@@ -209,6 +210,60 @@ class emulator:
                               )
 
         return history.history['loss'], history.history['val_loss']
+
+    def retrain(self,
+                x_tr,
+                y_tr,
+                x_val,
+                y_val,
+                loss_func_name='MRE',
+                initial_lr=0.001,
+                batch_size=256,
+                epochs=350,
+                reduce_lr_factor=0.95,
+                stop_patience_value=15,
+                decay_patience_value=5,
+                verbose=False
+                ):
+
+        x_tr_arr = self.preprocess_params_dict(x_tr)
+        x_val_arr = self.preprocess_params_dict(x_val)
+
+        y_train = self.preprocess_features(y_tr)
+        y_val = self.preprocess_features(y_val)
+
+        early_stopping_cb = tf.keras.callbacks.EarlyStopping(
+            monitor="val_loss", patience=stop_patience_value, min_delta=1e-10, restore_best_weights=True, verbose=1
+        )
+        reduce_lr_cb = tf.keras.callbacks.ReduceLROnPlateau(
+            monitor="val_loss", patience=decay_patience_value, factor=reduce_lr_factor,
+            verbose=1, min_delta=5e-9, min_lr=1e-7)
+
+        callbacks = [early_stopping_cb, reduce_lr_cb]
+
+        if loss_func_name == 'MRE':
+            loss_func = self.mre_loss()
+        elif loss_func_name == 'L2':
+            loss_func = self.L2_loss()
+        elif loss_func_name == 'APE':
+            loss_func = self.APE_loss()
+
+        self.NN.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=initial_lr), loss=loss_func)
+
+        history = self.NN.fit(x=x_tr_arr,
+                              y=y_train,
+                              batch_size=batch_size,
+                              epochs=epochs,
+                              validation_data=(x_val_arr, y_val),
+                              validation_batch_size=batch_size,
+                              callbacks=callbacks,
+                              verbose=verbose,
+                              )
+
+        return history.history['loss'], history.history['val_loss']
+
+
+
 
     def save(self, dir_path):
         self.NN.save(F'{dir_path}/{self.NN.name}.h5')
