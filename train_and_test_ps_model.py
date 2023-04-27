@@ -1,7 +1,7 @@
 import numpy as np
 import pickle
 import random
-from NN_emulator import emulator, CustomLayer
+from NN_emulator import emulator
 import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 

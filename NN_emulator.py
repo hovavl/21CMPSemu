@@ -20,6 +20,8 @@ class emulator:
                  use_log=False,
                  activation='relu',
                  name='emulator',
+                 use_custom_layer = True,
+                 use_batchNorm = True,
                  files_dir=None
                  ):
         if restore:
@@ -47,7 +49,7 @@ class emulator:
                 self.tr_features_mean = np.mean(self.features_train, axis=0, dtype=np.float32)
                 self.tr_features_std = np.std(self.features_train, axis=0, dtype=np.float32)
             self.NN = self.create_model(self.params_train_arr.shape[1], hidden_dims, self.features_train.shape[1],
-                                        activation, dropout_rate, reg_factor, name)
+                                        activation, dropout_rate, reg_factor, name, use_custom_layer, use_batchNorm)
 
         self.use_log = use_log
 
@@ -84,7 +86,7 @@ class emulator:
         params_arr = self.dict_to_ordered_arr_np(params_dict)
         return self.preprocess_params_arr(params_arr)
 
-    def create_model(self, input_dim, hidden_dims, out_dim, activation, dropout_rate, reg_factor, name, use_custom_layer=True, use_BatchNorm=True):
+    def create_model(self, input_dim, hidden_dims, out_dim, activation, dropout_rate, reg_factor, name, use_custom_layer, use_BatchNorm):
         layers = []
 
         input_layer = tf.keras.Input(shape=(input_dim,))

@@ -20,12 +20,13 @@ mpl.rcParams['figure.dpi'] = 300
 with open('/Users/hovavlazare/GITs/21CMPSemu/best_model_files_7-9/best_model_training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
-x=1
+
 myEmulator = emulator(restore=True, use_log=False,
                       files_dir='/Users/hovavlazare/GITs/21CMPSemu/best_model_files_7-9',
                       name='best_model_emulator')
 
 print(myEmulator.NN.summary())
+
 
 ind = testing_params['L_X'] > 38
 filter_test_params = {}
@@ -51,7 +52,7 @@ plt.show()
 
 
 
-exit(0)
+
 
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(30, 8))
 
