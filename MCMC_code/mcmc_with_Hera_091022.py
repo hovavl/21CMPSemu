@@ -10,6 +10,7 @@ import warnings
 import copy
 import hera_pspec as hp
 import corner
+import datetime
 import json
 import sys
 sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
@@ -345,7 +346,7 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
         sampler.reset()
         flag = True
         count = 0
-        while (flag):
+        while flag:
             print("Running production...")
             pos, prob, state, _ = sampler.run_mcmc(p0, niter, progress=True)
             samples = sampler.get_chain()
@@ -357,7 +358,8 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
                 tmp = np.abs((1 - np.array(GR) < 10 ** (-5)))
             count += 4000
             print('position: ', pos, 'GR: ', GR, '\nnum of iterations: ', count)
-            break
+
+
             if np.all(tmp):
                 flag = False
             else:
@@ -375,7 +377,7 @@ sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
 samples = sampler.get_chain()
 
 flat_samples = sampler.chain[:, :, :].reshape((-1, ndim))
-pickle.dump(flat_samples, open('MCMC_results_270123_with_hera_PCA_NN.pk', 'wb'))
+pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_with_hera.pk', 'wb'))
 
 print(flat_samples.shape)
 plt.ion()
@@ -385,4 +387,4 @@ labels = [r'$\log_{10}f_{\ast,10}$', r'$\alpha_{\ast}$', r'$\log_{10}f_{{\rm esc
           r'$E_0/{\rm keV}$', r'$\alpha_{X}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
-plt.savefig('mcmc_with_hera_270123.png')
+plt.savefig(f'mcmc_with_hera_{datetime.date.today()}.png')

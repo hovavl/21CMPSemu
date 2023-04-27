@@ -11,6 +11,7 @@ import hera_pspec as hp
 import corner
 import json
 import sys
+import datetime
 
 
 sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
@@ -379,14 +380,14 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
 data = (mcmc_k_modes, ps_data79, yerr79)
 nwalkers = 24
 niter = 60000
-initial = np.array([-1.24, 0.5, -1.11, 0.02, 8.59, 0.64, 40.64, 720, 0.8])  # best guesses
+initial = np.array([-1.24, 0.5, -1.11, 0.02, 8.59, 0.64, 40.64, 0.72, 0.8])  # best guesses
 ndim = len(initial)
 p0 = [np.array(initial) + 1e-1 * np.random.randn(ndim) for i in range(nwalkers)]
 sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
 samples = sampler.get_chain()
 
 flat_samples = sampler.chain[:, :, :].reshape((-1, ndim))
-pickle.dump(flat_samples, open('MCMC_results_270123_no_hera_PCA_NN.pk', 'wb'))
+pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_no_hera.pk', 'wb'))
 
 print(flat_samples.shape)
 plt.ion()
@@ -396,4 +397,4 @@ labels = [r'$\log_{10}f_{\ast,10}$', r'$\alpha_{\ast}$', r'$\log_{10}f_{{\rm esc
           r'$E_0/{\rm keV}$', r'$\alpha_{X}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
-plt.savefig('mcmc_no_hera_270123.png')
+plt.savefig(f'mcmc_no_hera_{datetime.date.today()}.png')
