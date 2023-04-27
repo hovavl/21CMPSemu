@@ -140,22 +140,25 @@ with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.js
 
 nn_ps = emulator(restore=True, use_log=False,
                  files_dir='{dir_path}',
-                 name='{model_name}')
+                 name='emulator_7-9')
 nn_ps104 = emulator(restore=True, use_log=False,
                     files_dir='{dir_path}',
-                    name='{model_name}')
+                    name='emulator_10-4')
+
 nn_tau = emulator(restore=True, use_log=False,
                   files_dir='{dir_path}',
-                  name='{model_name}')
+                  name='tau_emulator')
 nn_xH = emulator(restore=True, use_log=False,
                  files_dir='{dir_path}',
-                 name='{model_name}')
+                 name='xH_emulator')
 myClassifier79 = SignalClassifier(restore=True,
                                   files_dir='{dir_path}',
-                                  name='{model_name}')
+                                  name='classify_NN_7-9')
 myClassifier104 = SignalClassifier(restore=True,
                                    files_dir='{dir_path}',
-                                   name='{model_name}')
+                                   name='classify_NN_10-4')
+
+
 
 
 
@@ -165,7 +168,7 @@ def culcPS(theta):
     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
-    label_pred = myClassifier79.predict(params)[0]
+    label_pred = np.around(myClassifier79.predict(params)[0])[0]
 
     predicted_testing_spectra = nn_ps.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
@@ -186,7 +189,7 @@ def culcPS2(theta):
     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
-    label_pred = myClassifier104.predict(params)[0]
+    label_pred = np.around(myClassifier104.predict(params)[0])[0]
 
     predicted_testing_spectra = nn_ps104.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
@@ -312,7 +315,7 @@ def lnprior(theta):
     return -np.inf
 
 
-def lnprob(theta, k_modes=emulator_k_modes, y_data=ps_data79, data_err=yerr):
+def lnprob(theta, k_modes=emulator_k_modes, y_data=ps_data79, data_err=yerr79):
     lp = lnprior(theta)
     if not np.isfinite(lp):
         return -np.inf

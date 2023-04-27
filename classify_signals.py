@@ -4,7 +4,7 @@ import random
 import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 data = pickle.load(
-    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/bigger_data_set_2023-03-12.pk', 'rb'))
+    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/bigger_data_set_2023-03-30_10.4.pk', 'rb'))
 
 
 def classify_signal(signal):
@@ -79,10 +79,10 @@ val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
 testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params]
-with open('/Users/hovavlazare/PycharmProjects/global_signal_model/classifier_files/training_files.pk', 'wb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4/training_files.pk', 'wb') as f:
     pickle.dump(files, f)
 
-with open('/Users/hovavlazare/PycharmProjects/global_signal_model/classifier_files/training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4/training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params= pickle.load(
         f)
 
@@ -93,10 +93,8 @@ myClassifier = SignalClassifier(params_train_dict=training_params, params_val_di
                                 hidden_dims=[128, 512, 256],
                                 reg_factor=0.00,
                                 dropout_rate=0.1,
-                                activation='relu', name='classify_NN',
-                                files_dir='/Users/hovavlazare/GITs/21CMPSemu/classifier_files',
-
-                      )
+                                activation='relu', name='classify_NN_104',
+                                )
 
 print(myClassifier.NN.summary())
 train_loss, val_loss = myClassifier.train(reduce_lr_factor=0.5, batch_size=512, verbose=True,
@@ -112,6 +110,6 @@ plt.show()
 
 test_scr = myClassifier.evaluate(testing_params, testing_features)
 predictions = myClassifier.predict(testing_params)
-myClassifier.save('/Users/hovavlazare/GITs/21CMPSemu/classifier_files')
+#yClassifier.save('/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4')
 
 x=1

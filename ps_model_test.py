@@ -17,25 +17,25 @@ plt.rcParams['axes.titlepad'] = 15  # pad is in points...
 mpl.rcParams['figure.dpi'] = 300
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/best_model_files_7-9/best_model_training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_7-9/centered_training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/best_model_files_7-9',
-                      name='best_model_emulator')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_7-9',
+                      name='small_data_set_very_deep_emulator')
 
 print(myEmulator.NN.summary())
 
 
-ind = testing_params['L_X'] > 38
-filter_test_params = {}
-for key in testing_params.keys():
-    filter_test_params[key] = testing_params[key][ind]
-filter_test_features = testing_features[ind, :]
+# ind = testing_params['L_X'] > 38
+# filter_test_params = {}
+# for key in testing_params.keys():
+#     filter_test_params[key] = testing_params[key][ind]
+# filter_test_features = testing_features[ind, :]
 
-# filter_test_params = testing_params
-# filter_test_features = testing_features
+filter_test_params = testing_params
+filter_test_features = testing_features
 print(filter_test_features.shape[0])
 test_loss, pred = myEmulator.test_APE(filter_test_params, filter_test_features)
 
@@ -46,7 +46,7 @@ plt.boxplot(test_loss, whis=(5, 95), whiskerprops={'ls': 'dotted', 'linewidth': 
 plt.title('Testing set statistics z = 7.9')
 plt.ylabel(r'$\frac{|y_{real} - y_{pred}|}{y_{real}}$', fontdict={'fontsize': 16})
 plt.legend(handles=[red_line], loc='upper right', frameon=False, prop={"size": 16})
-plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/results_1')
+#plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/results_1')
 
 plt.show()
 

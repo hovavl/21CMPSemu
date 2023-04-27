@@ -5,8 +5,8 @@ from NN_emulator import emulator
 import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 
-data = pickle.load(
-   open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/centered_samples_10-4_2023-04-14.pk', 'rb'))
+# data = pickle.load(
+#    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/centered_samples_10-4_2023-04-14.pk', 'rb'))
 
 
 # extra_data = pickle.load(
@@ -65,9 +65,8 @@ def organize_data(data):
     return powerspectra, params, model_params, k_range, class_0_params
 
 
-myClassifier = SignalClassifier(restore=True,
-                                files_dir='/Users/hovavlazare/GITs/21CMPSemu/classifier_files',
-                                name='classify_NN')
+
+
 
 
 def classify_test_data(test_params_dict, test_features):
@@ -106,29 +105,34 @@ def divide_data(params, powerspectra, model_params, tr_split, val_split):
     return tr_par_dict, tr_powerspectra, val_par_dict, val_powerspectra, test_par_dict, test_powerspectra
 
 
-powerspectra, params, model_params, k_range, class_0_params = organize_data(data)
+# powerspectra, params, model_params, k_range, class_0_params = organize_data(data)
+#
+# training_params, features, val_params, val_features, testing_params, testing_features = \
+#     divide_data(params, powerspectra, model_params, 0.80, 0.10)
+#
+# # training_params, features, val_params, val_features, testing_params, testing_features, k_range, model_params = \
+# #     split_data(0.85, 0.1,
+# #                data, extra_data)
+# training_params['NU_X_THRESH'] = training_params['NU_X_THRESH'] / 1000
+# val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
+# testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
+# f_test_params, f_test_features = classify_test_data(testing_params, testing_features)
+#
+#
+# files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
+# with open('/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_10-4/centered_training_files.pk', 'wb') as f:
+#     pickle.dump(files, f)
 
-training_params, features, val_params, val_features, testing_params, testing_features = \
-    divide_data(params, powerspectra, model_params, 0.80, 0.10)
 
-# training_params, features, val_params, val_features, testing_params, testing_features, k_range, model_params = \
-#     split_data(0.85, 0.1,
-#                data, extra_data)
-training_params['NU_X_THRESH'] = training_params['NU_X_THRESH'] / 1000
-val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
-testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
-f_test_params, f_test_features = classify_test_data(testing_params, testing_features)
-
-
-files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
-with open('/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_10-4/centered_training_files.pk', 'wb') as f:
-    pickle.dump(files, f)
-
-exit(0)
 with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
+myClassifier = SignalClassifier(restore=True,
+                                files_dir='/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4',
+                                name='classify_NN')
 
+a = np.around(myClassifier.predict(testing_params)[0])[0]
+x=1
 
 # tr_splits = [0.2, 0.3, 0.4, 0.5, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85]
 # loss_means = []
