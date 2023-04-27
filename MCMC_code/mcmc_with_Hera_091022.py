@@ -147,25 +147,28 @@ with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.js
 
 # restore NN
 
+nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu'
+
 nn_ps = emulator(restore=True, use_log=False,
-                 files_dir='centered_model_files_7-9',
+                 files_dir=f'{nn_dir}/centered_model_files_7-9',
                  name='emulator_7-9')
 nn_ps104 = emulator(restore=True, use_log=False,
-                    files_dir='centered_model_files_10-4',
+                    files_dir=f'{nn_dir}/centered_model_files_10-4',
                     name='emulator_10-4')
 
 nn_tau = emulator(restore=True, use_log=False,
-                  files_dir='tau_model_files',
+                  files_dir=f'{nn_dir}/tau_model_files',
                   name='tau_emulator')
 nn_xH = emulator(restore=True, use_log=False,
-                 files_dir='xH_model_files',
+                 files_dir=f'{nn_dir}/xH_model_files',
                  name='xH_emulator')
 myClassifier79 = SignalClassifier(restore=True,
-                                  files_dir='classifier_files_7-9',
+                                  files_dir=f'{nn_dir}/classifier_files_7-9',
                                   name='classify_NN_7-9')
 myClassifier104 = SignalClassifier(restore=True,
-                                   files_dir='classifier_files_10-4',
+                                   files_dir=f'{nn_dir}/classifier_files_10-4',
                                    name='classify_NN_10-4')
+
 
 
 
