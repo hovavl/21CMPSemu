@@ -186,7 +186,7 @@ def culcPS(theta):
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(mcmc_k_modes, tck)
 
-    w_mat = band2_wfn[0, 2:, 2:]
+    w_mat = band2_wfn[0, 3:, 3:]
     model_ps = np.dot(w_mat, model_ps)
     return_ps = model_ps[logical_79]
     if label_pred == 1:
@@ -207,7 +207,7 @@ def culcPS2(theta):
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(mcmc_k_modes, tck)
 
-    w_mat = band1_wfn[0, 2:, 2:]
+    w_mat = band1_wfn[0, 3:, 3:]
     model_ps = np.dot(w_mat, model_ps)
     return_ps = model_ps[logical_104]
     if label_pred == 1:
