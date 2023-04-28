@@ -20,7 +20,7 @@ from NN_emulator import emulator
 from Classifier import SignalClassifier
 import UV_LF
 
-h0 = 0.674
+h0 = 0.698
 
 
 
@@ -96,7 +96,7 @@ band1_wfn = uvp.get_window_function(band1_key)
 # extract data
 kbins = uvp.get_kparas(0)  # after spherical binning, k_perp=0 so k_mag = k_para
 
-ks = slice(2, None)
+ks = slice(3, None)
 xlim = (0, 2.0)
 band2_err = np.sqrt(band2_cov[0].diagonal())
 band1_err = np.sqrt(band1_cov[0].diagonal())

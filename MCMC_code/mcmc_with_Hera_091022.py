@@ -19,7 +19,7 @@ from NN_emulator import emulator
 from Classifier import SignalClassifier
 import UV_LF
 
-h0 = 0.674
+h0 = 0.698
 
 warnings.filterwarnings('ignore', module='hera_sim')
 warnings.filterwarnings('ignore', category=RuntimeWarning)
@@ -74,8 +74,8 @@ def interp_Wcdf(W, k, lower_perc=0.16, upper_perc=0.84):
 # just load field 1 for now
 uvp = hp.UVPSpec()
 field = 1
-uvp.read_hdf5('/Users/hovavlazare/PycharmProjects/21CM Project/data/ps_files/pspec_h1c_idr2_field1.h5')
-#uvp.read_hdf5('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/data_for_mcmc/ps_files/pspec_h1c_idr2_field1.h5')
+# uvp.read_hdf5('/Users/hovavlazare/PycharmProjects/21CM Project/data/ps_files/pspec_h1c_idr2_field1.h5')
+uvp.read_hdf5('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/data_for_mcmc/ps_files/pspec_h1c_idr2_field1.h5')
 
 # print the two available keys
 band1_key, band2_key = uvp.get_all_keys()
@@ -94,7 +94,7 @@ band1_wfn = uvp.get_window_function(band1_key)
 kbins = uvp.get_kparas(0)  # after spherical binning, k_perp=0 so k_mag = k_para
 
 
-ks = slice(2, None)
+ks = slice(3, None)
 xlim = (0, 2.0)
 band2_err = np.sqrt(band2_cov[0].diagonal())
 band1_err = np.sqrt(band1_cov[0].diagonal())

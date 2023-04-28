@@ -20,7 +20,7 @@ def predict_luminosity(theta):
     tmp = copy.deepcopy(theta)
     F_STAR10, F_STAR7_MIMI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, M_TURN, L_X, NU_X_THRESH, = tmp
     astro_params = {'F_STAR10': F_STAR10, 'F_ESC10': F_ESC10, 'L_X': L_X, 'M_TURN': M_TURN,
-              'NU_X_THRESH': NU_X_THRESH, 'ALPHA_STAR': ALPHA_STAR, 'ALPHA_ESC': ALPHA_ESC
+              'NU_X_THRESH': NU_X_THRESH*1000, 'ALPHA_STAR': ALPHA_STAR, 'ALPHA_ESC': ALPHA_ESC
               #'F_STAR7_MIMI': [F_STAR7_MIMI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]
                     }
     redshifts = [6, 8, 10]
