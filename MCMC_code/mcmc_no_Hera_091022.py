@@ -115,14 +115,14 @@ smaller_2 = (mcmc_k_modes < 1)
 y79[~smaller_2] = 0
 y104[~smaller_2] = 0
 
-odd_79 = np.array([i % 2 == 1 for i in range(len(y79))])
-even_104 = ~odd_79
+even79 = np.array([i % 2 == 0 for i in range(len(y79))])
+odd_104 = ~even79
 
 ypos = y79 > 0  # only positive values
 ypos104 = y104 > 0
 
-logical_79 = np.logical_and(odd_79, ypos)
-logical_104 = np.logical_and(even_104, ypos104)
+logical_79 = np.logical_and(even79, ypos)
+logical_104 = np.logical_and(odd_104, ypos104)
 
 ps_data79 = y79[logical_79]
 ps_data104 = y104[logical_104]
