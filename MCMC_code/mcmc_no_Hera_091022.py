@@ -15,7 +15,7 @@ import datetime
 
 sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
 
-from read_LF_mini import likelihood
+from read_LF import likelihood
 from NN_emulator import emulator
 from Classifier import SignalClassifier
 
