@@ -163,11 +163,11 @@ nn_xH = emulator(restore=True, use_log=False,
                  files_dir=f'{nn_dir}/xH_model_files',
                  name='xH_emulator')
 myClassifier79 = SignalClassifier(restore=True,
-                                  files_dir=f'{nn_dir}/classifier_model_files_7-9',
-                                  name='classify_NN_mini_7-9')
+                                  files_dir=f'{nn_dir}/experimental/classifier_model_files_7-9',
+                                  name='classify_NN_7-9')
 myClassifier104 = SignalClassifier(restore=True,
-                                   files_dir=f'{nn_dir}/classifier_model_files_10-4',
-                                   name='classify_NN_mini_10-4')
+                                   files_dir=f'{nn_dir}/experimental/classifier_model_files_10-4',
+                                   name='classify_NN_10-4')
 
 def culcPS(theta):
     tmp = copy.deepcopy(theta)
