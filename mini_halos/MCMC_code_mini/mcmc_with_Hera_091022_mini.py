@@ -147,7 +147,7 @@ emulator_k_modes = 10**(np.linspace(np.log10(k_min) , np.log10(k_max) , num=100)
 
 # restore NN
 
-nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu/mini_halos_NN'
+nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu/mini_halos/mini_halos_NN'
 
 nn_ps = emulator(restore=True, use_log=False,
                  files_dir=f'{nn_dir}/model_files_7-9',

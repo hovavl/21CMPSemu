@@ -146,7 +146,7 @@ with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.js
 
 # restore NN
 
-nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu/mini_halos_NN'
+nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu/mini_halos/mini_halos_NN'
 
 nn_ps = emulator(restore=True, use_log=False,
                  files_dir=f'{nn_dir}/model_files_7-9',
