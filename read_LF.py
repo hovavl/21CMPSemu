@@ -9,7 +9,7 @@ flag_options = {"USE_MASS_DEPENDENT_ZETA": True, "USE_CMB_HEATING": False, "USE_
                 'USE_TS_FLUCT': True,
                 'USE_MINI_HALOS': False, "INHOMO_RECO": True}
 redshifts = [6, 7, 8, 10]
-dir_path = '/Users/hovavlazare/GITs/21CMPSemu/LF_data'
+dir_path = '/gpfs0/elyk/users/hovavl/21CMPSemu/LF_data'
 
 
 def likelihood(theta):
