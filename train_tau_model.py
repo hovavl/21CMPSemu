@@ -50,11 +50,11 @@ val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
 testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params]
-with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/tau_model_files/training_files.pk', 'wb') as f:
+with open('/mini_halos/mini_halos_NN/tau_model_files/training_files.pk', 'wb') as f:
     pickle.dump(files, f)
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/tau_model_files/training_files.pk', 'rb') as f:
+with open('/mini_halos/mini_halos_NN/tau_model_files/training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params = pickle.load(
         f)
 
