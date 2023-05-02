@@ -5,6 +5,8 @@ from NN_emulator import emulator
 import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 
+# try Zeus21
+
 data = pickle.load(
    open('/Users/hovavlazare/GITs/21CMPSemu training data/pd_training_data_mini/samples_29-04-23_z=10.4.pk', 'rb'))
 
