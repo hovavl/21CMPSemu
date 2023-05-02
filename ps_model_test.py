@@ -17,13 +17,13 @@ plt.rcParams['axes.titlepad'] = 15  # pad is in points...
 mpl.rcParams['figure.dpi'] = 300
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_7-9/centered_training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_7-9/training_files', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_7-9',
-                      name='small_data_set_very_deep_emulator')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_7-9',
+                      name='emulator_7-9_mini')
 
 print(myEmulator.NN.summary())
 

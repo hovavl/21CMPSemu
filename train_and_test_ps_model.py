@@ -5,8 +5,8 @@ from NN_emulator import emulator
 import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 
-# data = pickle.load(
-#    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/centered_samples_10-4_2023-04-14.pk', 'rb'))
+data = pickle.load(
+   open('/Users/hovavlazare/GITs/21CMPSemu training data/pd_training_data_mini/samples_29-04-23_z=10.4.pk', 'rb'))
 
 
 # extra_data = pickle.load(
@@ -47,7 +47,7 @@ def organize_data(data):
     for i, sample in enumerate(my_items):
         counter += 1
         if i <= len(my_items):
-            reduced_sample = sample[1]['ps'][30:89]
+            reduced_sample = sample[1]['ps'][30:]
             class_num = classify_signal(reduced_sample)
 
             if (0 < class_num < 6 and class_counter[class_num] < 2500): #or (class_num == 5 and class_counter[5] < 7000):
@@ -61,7 +61,7 @@ def organize_data(data):
                 break
     powerspectra = np.array(powerspectra)
     params = np.array(params)
-    k_range = data[0]['k'][30:89]
+    k_range = data[0]['k'][30:]
     return powerspectra, params, model_params, k_range, class_0_params
 
 
@@ -105,34 +105,34 @@ def divide_data(params, powerspectra, model_params, tr_split, val_split):
     return tr_par_dict, tr_powerspectra, val_par_dict, val_powerspectra, test_par_dict, test_powerspectra
 
 
-# powerspectra, params, model_params, k_range, class_0_params = organize_data(data)
-#
-# training_params, features, val_params, val_features, testing_params, testing_features = \
-#     divide_data(params, powerspectra, model_params, 0.80, 0.10)
-#
-# # training_params, features, val_params, val_features, testing_params, testing_features, k_range, model_params = \
-# #     split_data(0.85, 0.1,
-# #                data, extra_data)
-# training_params['NU_X_THRESH'] = training_params['NU_X_THRESH'] / 1000
-# val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
-# testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
+powerspectra, params, model_params, k_range, class_0_params = organize_data(data)
+
+training_params, features, val_params, val_features, testing_params, testing_features = \
+    divide_data(params, powerspectra, model_params, 0.85, 0.10)
+
+# training_params, features, val_params, val_features, testing_params, testing_features, k_range, model_params = \
+#     split_data(0.85, 0.1,
+#                data, extra_data)
+training_params['NU_X_THRESH'] = training_params['NU_X_THRESH'] / 1000
+val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
+testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
 # f_test_params, f_test_features = classify_test_data(testing_params, testing_features)
-#
-#
-# files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
-# with open('/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_10-4/centered_training_files.pk', 'wb') as f:
-#     pickle.dump(files, f)
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4/training_files.pk', 'rb') as f:
+files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
+with open('/mini_halos/mini_halos_NN/model_files_10-4/training_files', 'wb') as f:
+    pickle.dump(files, f)
+
+
+with open('/mini_halos/mini_halos_NN/model_files_10-4/training_files', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
-myClassifier = SignalClassifier(restore=True,
-                                files_dir='/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4',
-                                name='classify_NN')
+# myClassifier = SignalClassifier(restore=True,
+#                                 files_dir='/Users/hovavlazare/GITs/21CMPSemu/experimental/model_files_7-9',
+#                                 name='emulator_7-9_full_range')
+#
+# a = np.around(myClassifier.predict(testing_params)[0])[0]
 
-a = np.around(myClassifier.predict(testing_params)[0])[0]
-x=1
 
 # tr_splits = [0.2, 0.3, 0.4, 0.5, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85]
 # loss_means = []
@@ -170,7 +170,7 @@ x=1
 myEmulator = emulator(training_params, val_params, features, val_features, model_params,
                       hidden_dims=[288, 512, 512, 288, 512, 1024], features_band=k_range, reg_factor=0.0,
                       dropout_rate=0.0,
-                      use_log=False, activation='linear', name='emulator_10-4',
+                      use_log=False, activation='linear', name='emulator_7-9_mini',
                       )
 
 print(myEmulator.NN.summary())
@@ -194,7 +194,7 @@ for key in testing_params.keys():
     filter_test_params[key] = testing_params[key][ind]
 filter_test_features = testing_features[ind, :]
 
-test_loss, pred = myEmulator.test_MRE(filter_test_params, filter_test_features)
+test_loss, pred = myEmulator.test_APE(filter_test_params, filter_test_features)
 
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(30, 8))
 
@@ -243,5 +243,5 @@ for i in range(3):
 
 plt.show()
 
-myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4')
+myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/mini_halos_NN/model_files_10-4')
 x = 1

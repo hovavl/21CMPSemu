@@ -4,15 +4,15 @@ import pickle
 from NN_emulator import emulator
 import random
 
-filename = '/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_10-4/centered_training_files.pk'
+filename = '/Users/hovavlazare/GITs/21CMPSemu/experimental/centered_model_files_10-4/centered_training_files'
 
 with open(filename, 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/model_files_10-4',
-                      name='emulator_10-4')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/experimental/model_files_10-4',
+                      name='emulator_10-4_full_range')
 
 for i, layer in enumerate(myEmulator.NN.layers):
 
@@ -89,4 +89,4 @@ for i in range(5):
 
 plt.show()
 
-myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/centered_model_files_10-4')
+myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/experimental/centered_model_files_10-4')

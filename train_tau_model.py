@@ -5,7 +5,7 @@ from NN_emulator import emulator
 import matplotlib.pyplot as plt
 
 data = pickle.load(
-   open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/60000samples_080123_spline.pk', 'rb'))
+   open('/Users/hovavlazare/GITs/21CMPSemu training data/pd_training_data_mini/samples_29-04-23_z=7.9.pk', 'rb'))
 
 
 def split_data(data, tr_split, val_split, predicted_value):
@@ -42,19 +42,19 @@ def split_data(data, tr_split, val_split, predicted_value):
 
     return training_params, features, val_params, val_featurs, testing_params, testing_features, model_params
 
-# training_params, features, val_params, val_features, testing_params, testing_features, model_params = \
-#     split_data(data, 0.85, 0.1, 'xH')
-#
-# training_params['NU_X_THRESH'] = training_params['NU_X_THRESH'] / 1000
-# val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
-# testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
-#
-# files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params]
-# with open('/Users/hovavlazare/GITs/21CMPSemu/xH_model_files/training_files.pk', 'wb') as f:
-#     pickle.dump(files, f)
+training_params, features, val_params, val_features, testing_params, testing_features, model_params = \
+    split_data(data, 0.85, 0.1, 'tau')
+
+training_params['NU_X_THRESH'] = training_params['NU_X_THRESH'] / 1000
+val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
+testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
+
+files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params]
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/tau_model_files/training_files.pk', 'wb') as f:
+    pickle.dump(files, f)
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/xH_model_files/training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/tau_model_files/training_files.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params = pickle.load(
         f)
 
@@ -86,5 +86,5 @@ print(np.median(test_loss))
 plt.boxplot(test_loss, whis=(5, 95), whiskerprops={'ls': 'dotted', 'linewidth': 1, 'color': 'b'},
               medianprops={'color': 'r', 'linewidth': 0.5}, showfliers=True)
 plt.show()
-
-myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/xH_model_files')
+x=1
+myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/tau_model_files')

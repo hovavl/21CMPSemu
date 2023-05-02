@@ -3,8 +3,9 @@ import pickle
 import random
 import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
+
 data = pickle.load(
-    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/bigger_data_set_2023-03-30_10.4.pk', 'rb'))
+    open('/Users/hovavlazare/GITs/21CMPSemu training data/pd_training_data_mini/samples_29-04-23_z=10.4.pk', 'rb'))
 
 
 def classify_signal(signal):
@@ -30,13 +31,13 @@ def organize_data(data):
     for i, sample in enumerate(my_items):
         counter += 1
         if i <= len(my_items):
-            reduced_sample = sample[1]['ps'][30:89]
+            reduced_sample = sample[1]['ps'][30:]
             class_num = classify_signal(reduced_sample)
-            if class_counter[class_num] < 15000:
+            if class_counter[class_num] < 10000:
                 class_counter[class_num] += 1
                 params += [list(sample[1]['model params'].values())]
                 logics += [class_num]
-            if np.all(np.array(list(class_counter.values())) > 14000):
+            if np.all(np.array(list(class_counter.values())) > 10000):
                 break
     logics = np.array(logics)
     params = np.array(params)
@@ -49,7 +50,7 @@ def divide_data(params, logics, model_params, tr_split, val_split):
     s_params, s_logics = zip(*all_data)
     s_params = np.array(s_params)
     s_logics = np.array(s_logics)
-    s_logics = np.reshape(s_logics, (s_logics.shape[0],1))
+    s_logics = np.reshape(s_logics, (s_logics.shape[0], 1))
     tr_params = s_params[:int(s_params.shape[0] * tr_split), :]
     tr_logics = s_logics[:int(s_logics.shape[0] * tr_split), :]
     val_params = s_params[int(s_params.shape[0] * tr_split) + 1:int(s_params.shape[0] * (tr_split + val_split)), :]
@@ -58,7 +59,7 @@ def divide_data(params, logics, model_params, tr_split, val_split):
     test_params = s_params[int(s_params.shape[0] * (tr_split + val_split)) + 1:, :]
     test_logics = s_logics[int(s_logics.shape[0] * (tr_split + val_split)) + 1:, :]
 
-    x = 1
+
     tr_par_dict = {}
     val_par_dict = {}
     test_par_dict = {}
@@ -79,11 +80,11 @@ val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
 testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params]
-with open('/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4/training_files.pk', 'wb') as f:
+with open('/mini_halos/mini_halos_NN/classifier_model_files_10-4/training_files.pk', 'wb') as f:
     pickle.dump(files, f)
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4/training_files.pk', 'rb') as f:
-    training_params, features, val_params, val_features, testing_params, testing_features, model_params= pickle.load(
+with open('/mini_halos/mini_halos_NN/classifier_model_files_10-4/training_files.pk', 'rb') as f:
+    training_params, features, val_params, val_features, testing_params, testing_features, model_params = pickle.load(
         f)
 
 myClassifier = SignalClassifier(params_train_dict=training_params, params_val_dict=val_params,
@@ -93,12 +94,12 @@ myClassifier = SignalClassifier(params_train_dict=training_params, params_val_di
                                 hidden_dims=[128, 512, 256],
                                 reg_factor=0.00,
                                 dropout_rate=0.1,
-                                activation='relu', name='classify_NN_104',
+                                activation='relu', name='classify_NN__mini_104',
                                 )
 
 print(myClassifier.NN.summary())
 train_loss, val_loss = myClassifier.train(reduce_lr_factor=0.5, batch_size=512, verbose=True,
-                                        epochs=500, decay_patience_value=10, stop_patience_value=30)
+                                          epochs=500, decay_patience_value=10, stop_patience_value=30)
 
 plt.plot(train_loss, label='Training')
 plt.plot(val_loss, label='Validation')
@@ -110,6 +111,6 @@ plt.show()
 
 test_scr = myClassifier.evaluate(testing_params, testing_features)
 predictions = myClassifier.predict(testing_params)
-#yClassifier.save('/Users/hovavlazare/GITs/21CMPSemu/classifier_files_10-4')
+myClassifier.save('/Users/hovavlazare/GITs/21CMPSemu/mini_halos_NN/classifier_model_files_10-4')
 
-x=1
+x = 1

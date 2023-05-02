@@ -13,12 +13,11 @@ import json
 import sys
 import datetime
 
-
 sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
 
+from read_LF_mini import likelihood
 from NN_emulator import emulator
 from Classifier import SignalClassifier
-import UV_LF
 
 h0 = 0.698
 
@@ -191,7 +190,7 @@ def culcPS(theta):
     return_ps = model_ps[logical_79]
     if label_pred == 1:
         return return_ps
-    return np.clip(np.random.randn(return_ps.shape[0]) * 0.5 + 1, 0, 1)
+    return np.clip(np.random.randn(return_ps.shape[0]) * 0.5 + 2, 0, 5)
 
 
 # calculate the power spectrum at z = 10.4
@@ -212,7 +211,7 @@ def culcPS2(theta):
     return_ps = model_ps[logical_104]
     if label_pred == 1:
         return return_ps
-    return np.clip(np.random.randn(return_ps.shape[0]) * 0.5 + 1, 0, 1)
+    return np.clip(np.random.randn(return_ps.shape[0]) * 0.5 + 2, 0, 5)
 
 
 """ 
@@ -228,30 +227,30 @@ same as the simulations for the training set
 
 
 # predict luminosity function
-def predict_luminosity(theta):
-    return UV_LF.predict_luminosity(theta)
-
-
-# calc the luminosity function likelihood
-def luminosity_func_lnlike(luminosity_func):
-    tot_lnlike = 0
-    redshifts = [6, 8, 10]
-    for i, func in enumerate(luminosity_func):
-        lum_data = UV_LU_data[str(redshifts[i])]['phi_k']
-        lum_err_sup = UV_LU_data[str(redshifts[i])]['err_sup']
-        lum_err_inf = UV_LU_data[str(redshifts[i])]['err_inf']
-        # print(f'data size: {len(lum_data)} err size: {len(lum_err)} func size: {len(func)}')
-
-        for j, val in enumerate(func):
-
-            if func[j] <= lum_data[j]:
-                like = -(1 / 2) * (
-                        ((val - lum_data[j]) / lum_err_inf[j]) ** 2 + np.log(2 * np.pi * lum_err_inf[j] ** 2))
-            else:
-                like = -(1 / 2) * (
-                        ((val - lum_data[j]) / lum_err_sup[j]) ** 2 + np.log(2 * np.pi * lum_err_sup[j] ** 2))
-            tot_lnlike += like
-    return tot_lnlike
+# def predict_luminosity(theta):
+#     return UV_LF.predict_luminosity(theta)
+#
+#
+# # calc the luminosity function likelihood
+# def luminosity_func_lnlike(luminosity_func):
+#     tot_lnlike = 0
+#     redshifts = [6, 8, 10]
+#     for i, func in enumerate(luminosity_func):
+#         lum_data = UV_LU_data[str(redshifts[i])]['phi_k']
+#         lum_err_sup = UV_LU_data[str(redshifts[i])]['err_sup']
+#         lum_err_inf = UV_LU_data[str(redshifts[i])]['err_inf']
+#         # print(f'data size: {len(lum_data)} err size: {len(lum_err)} func size: {len(func)}')
+#
+#         for j, val in enumerate(func):
+#
+#             if func[j] <= lum_data[j]:
+#                 like = -(1 / 2) * (
+#                         ((val - lum_data[j]) / lum_err_inf[j]) ** 2 + np.log(2 * np.pi * lum_err_inf[j] ** 2))
+#             else:
+#                 like = -(1 / 2) * (
+#                         ((val - lum_data[j]) / lum_err_sup[j]) ** 2 + np.log(2 * np.pi * lum_err_sup[j] ** 2))
+#             tot_lnlike += like
+#     return tot_lnlike
 
 
 # predict tau
@@ -307,8 +306,9 @@ def lnlike(theta):
     else:
         xH_lnLike = (-1 / 2) * (((xH - XH_MEAN) / XH_STD) ** 2 + np.log(2 * np.pi * XH_STD ** 2))
 
-    UV_lum = predict_luminosity(theta)
-    luminosity_lnlike = luminosity_func_lnlike(UV_lum)
+        # UV_lum = predict_luminosity(theta)
+        # luminosity_lnlike = luminosity_func_lnlike(UV_lum)
+    luminosity_lnlike = likelihood(theta)
     return tau_lnLike + xH_lnLike + luminosity_lnlike  # + ps_lnLike + ps104_lnLike
 
 
