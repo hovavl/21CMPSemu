@@ -140,7 +140,7 @@ XH_STD = 0.05
 
 k_min = 0.03005976
 k_max = 1.73339733
-emulator_k_modes = 10 ** (np.linspace(np.log10(k_min), np.log10(k_max), num=100))[30:89]
+emulator_k_modes = 10 ** (np.linspace(np.log10(k_min), np.log10(k_max), num=100))[30:]
 
 with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.json', 'r') as openfile:
     # Reading from json file
@@ -209,6 +209,7 @@ def culcPS2(theta):
     if label_pred == 1:
         return return_ps
     return np.clip(np.random.randn(return_ps.shape[0]) * 0.5 + 2, 0, 5)
+
 
 
 """ 
