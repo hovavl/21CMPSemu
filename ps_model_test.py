@@ -5,8 +5,6 @@ from NN_emulator import emulator
 import random
 import matplotlib as mpl
 import matplotlib.lines as mlines
-
-
 plt.rc('text', usetex=True)  # render font for tex
 plt.rc('font', family='TimesNewRoman')  # use font
 plt.rcParams['font.family'] = 'DeJavu Serif'
@@ -14,31 +12,31 @@ plt.rcParams['font.serif'] = ['Times New Roman']
 #plt.rcParams['axes.linewidth'] = 3
 plt.rcParams['axes.titley'] = 1.0  # y is in axes-relative coordinates.
 plt.rcParams['axes.titlepad'] = 15  # pad is in points...
-mpl.rcParams['figure.dpi'] = 300
+mpl.rcParams['figure.dpi'] = 500
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/experimental/model_files_7-9/training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_7-9/training_files', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/experimental/model_files_10-4/training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_10-4/training_files', 'rb') as f:
     training_params1, features1, val_params1, val_features1, testing_params1, testing_features1, model_params1, k_range1 = pickle.load(
         f)
 
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/experimental/model_files_7-9',
-                      name='emulator_7-9_full_range')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_7-9',
+                      name='emulator_7-9_mini')
 
 myEmulator1 = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/experimental/model_files_10-4',
-                      name='emulator_10-4_full_range')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_10-4',
+                      name='emulator_10-4_mini')
 # print(myEmulator.NN.summary())
 # ind = testing_params['L_X'] > 38
 # filter_test_params = {}
 # for key in testing_params.keys():
 #     filter_test_params[key] = testing_params[key][ind]
 # filter_test_features = testing_features[ind, :]
-
+x=1
 filter_test_params = testing_params
 filter_test_features = testing_features
 print(filter_test_features.shape[0])
@@ -53,19 +51,26 @@ test_loss1, pred1 = myEmulator1.test_APE(filter_test_params1, filter_test_featur
 
 
 
-red_line = mlines.Line2D([], [], color='red', label='median')
-
-plt.boxplot([test_loss, test_loss1], whis=(5, 95), whiskerprops={'ls': 'dotted', 'linewidth': 1, 'color': 'b'},
+red_line = mlines.Line2D([], [], color='red', label=np.round(np.median(test_loss1),decimals =1))
+blue_line = mlines.Line2D([], [], color='blue', label=np.round(np.median(test_loss), decimals=1))
+plt.figure(figsize=(8,8))
+box_plot = plt.boxplot([test_loss, test_loss1], whis=(5, 95), whiskerprops={'ls': 'dotted', 'linewidth': 1, 'color': 'b'},
               medianprops={'color': 'r', 'linewidth': 0.5}, showfliers=True, labels=['7.9', '10.4'])
-plt.xlabel(r'$z$', fontdict={'fontsize':18})
-plt.ylabel(r'$\frac{|y_{real} - y_{pred}|}{y_{real}} \times 100$', fontdict={'fontsize': 18})
-plt.legend(handles=[red_line], loc='upper right', frameon=False, prop={"size": 16})
-
-plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/results_1')
+for median in box_plot['medians']:
+    median.set_color('b')
+    break
+plt.title('Emulator error - mini halos', fontdict={'fontsize': 24})
+plt.xlabel(r'$z$', fontdict={'fontsize':24})
+plt.ylabel(r'$\frac{|y_{real} - y_{pred}|}{y_{real}} \times 100$', fontdict={'fontsize': 24})
+plt.legend(handles=[red_line, blue_line], loc='upper right', frameon=False, prop={"size":20})
+plt.xticks(fontsize=24)
+plt.yticks(fontsize=24)
+plt.tight_layout()
+plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/results_emulator_mini')
 
 plt.show()
-x=2
 
+x=2
 
 
 
