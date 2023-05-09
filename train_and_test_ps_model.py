@@ -8,7 +8,7 @@ from Classifier import SignalClassifier
 # try Zeus21
 
 data = pickle.load(
-   open('/Users/hovavlazare/GITs/21CMPSemu training data/pd_training_data_mini/samples_29-04-23_z=10.4.pk', 'rb'))
+   open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data_mini/samples_09-05-2023_centered_z=10.4.pk', 'rb'))
 
 
 # extra_data = pickle.load(
@@ -20,7 +20,7 @@ def classify_signal(signal):
     maximum = np.max(signal)
     if minimum != signal[0] and maximum - minimum > 1 and np.all(signal > 0.5):
         return 5
-    elif maximum - minimum < 1 and np.all(signal > 0.5):
+    elif maximum - minimum < 1 :#and np.all(signal > 0.5):
         return 0
     elif maximum - minimum < 10 and np.all(signal > 0.5):
         return 1
@@ -37,6 +37,7 @@ def organize_data(data):
     params = []
     class_0_params = []
     powerspectra = []
+    zero_spectra = []
     class_counter = {}
     for i in range(0, 6):
         class_counter[i] = 0
@@ -56,12 +57,14 @@ def organize_data(data):
                 class_counter[class_num] += 1
                 params += [list(sample[1]['model params'].values())]
                 powerspectra += [reduced_sample]
-            elif class_num == 0 and class_counter[0] < 1000:
+            elif class_num == 0 :#and class_counter[0] < 1000:
                 class_0_params += [list(sample[1]['model params'].values())]
                 class_counter[0] += 1
+                zero_spectra += [reduced_sample]
             if np.all(np.array(list(class_counter.values()))[1:5] > 2500):
                 break
     powerspectra = np.array(powerspectra)
+    zero_spectra = np.array(zero_spectra)
     params = np.array(params)
     k_range = data[0]['k'][30:]
     return powerspectra, params, model_params, k_range, class_0_params
@@ -122,9 +125,10 @@ testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
 
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
-with open('/mini_halos/mini_halos_NN/model_files_10-4/training_files', 'wb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_10-4/training_files', 'wb') as f:
     pickle.dump(files, f)
 
+exit(0)
 
 with open('/mini_halos/mini_halos_NN/model_files_10-4/training_files', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(

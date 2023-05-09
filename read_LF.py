@@ -3,13 +3,14 @@ warnings.filterwarnings('ignore', category=UserWarning)
 import numpy as np
 import py21cmfast as p21c
 
-user_params = {"DIM": 512, "HII_DIM": 128, "BOX_LEN": 256, "N_THREADS": 1, 'USE_RELATIVE_VELOCITIES': False,
+user_params = {"DIM": 512, "HII_DIM": 128, "BOX_LEN": 256, "N_THREADS": 1, 'USE_RELATIVE_VELOCITIES': True,
                "POWER_SPECTRUM": 0}
 flag_options = {"USE_MASS_DEPENDENT_ZETA": True, "USE_CMB_HEATING": False, "USE_LYA_HEATING": False,
                 'USE_TS_FLUCT': True,
-                'USE_MINI_HALOS': False, "INHOMO_RECO": True}
+                'USE_MINI_HALOS': True, "INHOMO_RECO": True}
 redshifts = [6, 7, 8, 10]
 dir_path = '/gpfs0/elyk/users/hovavl/21CMPSemu/LF_data'
+# dir_path =  '/Users/hovavlazare/GITs/21CMPSemu/LF_data'
 
 
 def likelihood(theta):
@@ -38,7 +39,7 @@ def likelihood_for_z(z, Lf_for_z, dir_path):
     lf_data = LF_data['lfunc']
     err = LF_err['sigma']
     y_model = np.interp(Muv_data, Muv, lf_sim)
-    print(f'data: {lf_data} err: {err} prediction: {y_model}')
+    #print(f'data: {lf_data} err: {err} prediction: {y_model}')
 
     lnlike = np.sum(-(1 / 2) * (
             ((lf_data - y_model) / err) ** 2 + np.log(2 * np.pi * err ** 2)))
@@ -72,3 +73,4 @@ def predict_luminosity(theta):
 # err = lf_err[lf_err_keys[0]]
 # Muv = LF_10_data[LF_keys[0]]
 # Lfunc = LF_10_data[LF_keys[1]]
+# x=1

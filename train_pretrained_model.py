@@ -4,15 +4,15 @@ import pickle
 from NN_emulator import emulator
 import random
 
-filename = '/Users/hovavlazare/GITs/21CMPSemu/experimental/centered_model_files_10-4/centered_training_files'
+filename = '/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_10-4/training_files'
 
 with open(filename, 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/experimental/model_files_10-4',
-                      name='emulator_10-4_full_range')
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_10-4',
+                      name='emulator_10-4_mini')
 
 for i, layer in enumerate(myEmulator.NN.layers):
 
@@ -88,5 +88,5 @@ for i in range(5):
     ax[i].grid()
 
 plt.show()
-
-myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/experimental/centered_model_files_10-4')
+x=1
+myEmulator.save('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_10-4')

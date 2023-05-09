@@ -151,10 +151,10 @@ nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu/mini_halos/mini_halos_NN'
 
 
 nn_ps = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/model_files_7-9',
+                 files_dir=f'{nn_dir}/centered_model_files_7-9',
                  name='emulator_7-9_mini')
 nn_ps104 = emulator(restore=True, use_log=False,
-                    files_dir=f'{nn_dir}/model_files_10-4',
+                    files_dir=f'{nn_dir}/centered_model_files_10-4',
                     name='emulator_10-4_mini')
 nn_tau = emulator(restore=True, use_log=False,
                   files_dir=f'{nn_dir}/tau_model_files',
@@ -374,10 +374,16 @@ pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_with_hera_
 
 print(flat_samples.shape)
 plt.ion()
-labels = [r'$\log_{10}f_{\ast,10}$', r'$\alpha_{\ast}$', r'$\log_{10}f_{{\rm esc},10}$', r'$\alpha_{\rm esc}$',
-          r'$\log_{10}[M_{\rm turn}/M_{\odot}]$', r'$t_{\ast}$',
-          r'$\log_{10}\frac{L_{\rm X<2 , keV/SFR}}{\rm erg\, s^{-1}\,M_{\odot}^{-1}\,yr}$',
-          r'$E_0/{\rm keV}$', r'$\alpha_{X}$']
+labels = [r'$\log_{10}f_{\ast,10}$',
+          r'$\log_{10}f_{\ast,7}$',
+          r'$\alpha_{\ast}$',
+          r'$\alpha_{\ast,\rm mini}$',
+          r'$\log_{10}f_{{\rm esc},10}$',
+          r'$\log_{10}f_{{\rm esc},7}$',
+          r'$\alpha_{\rm esc}$',
+          r'$\log_{10}[M_{\rm turn}/M_{\odot}]$',
+          r'$\log_{10}\frac{L_{\rm X<2 \, keV/SFR}}{\rm erg\, s^{-1}\,M_{\odot}^{-1}\,yr}$',
+          r'$E_0/{\rm keV}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
 plt.savefig(f'mcmc_with_hera_mini_{datetime.date.today()}.png')

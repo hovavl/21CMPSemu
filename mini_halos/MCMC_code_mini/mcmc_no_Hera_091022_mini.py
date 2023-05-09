@@ -367,7 +367,7 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
 
 data = (mcmc_k_modes, ps_data79, yerr79)
 nwalkers = 24
-niter = 50000
+niter = 60000
 initial = np.array([-1.24, -2.5, 0.5, 0, -1.35, -1.35, -0.3,  8.59, 40.64, 0.72])  # best guesses
 ndim = len(initial)
 p0 = [np.array(initial) + 1e-1 * np.random.randn(ndim) for i in range(nwalkers)]
@@ -379,10 +379,16 @@ pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_no_hera_mi
 
 print(flat_samples.shape)
 plt.ion()
-labels = [r'$\log_{10}f_{\ast,10}$', r'$\alpha_{\ast}$', r'$\log_{10}f_{{\rm esc},10}$', r'$\alpha_{\rm esc}$',
-          r'$\log_{10}[M_{\rm turn}/M_{\odot}]$', r'$t_{\ast}$',
-          r'$\log_{10}\frac{L_{\rm X<2 , keV/SFR}}{\rm erg\, s^{-1}\,M_{\odot}^{-1}\,yr}$',
-          r'$E_0/{\rm keV}$', r'$\alpha_{X}$']
+labels = [r'$\log_{10}f_{\ast,10}$',
+          r'$\log_{10}f_{\ast,7}$',
+          r'$\alpha_{\ast}$',
+          r'$\alpha_{\ast,\rm mini}$',
+          r'$\log_{10}f_{{\rm esc},10}$',
+          r'$\log_{10}f_{{\rm esc},7}$',
+          r'$\alpha_{\rm esc}$',
+          r'$\log_{10}[M_{\rm turn}/M_{\odot}]$',
+          r'$\log_{10}\frac{L_{\rm X<2 \, keV/SFR}}{\rm erg\, s^{-1}\,M_{\odot}^{-1}\,yr}$',
+          r'$E_0/{\rm keV}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
 plt.savefig(f'mcmc_no_hera_mini_{datetime.date.today()}.png')

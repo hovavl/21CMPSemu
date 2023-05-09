@@ -15,20 +15,20 @@ plt.rcParams['axes.titlepad'] = 15  # pad is in points...
 mpl.rcParams['figure.dpi'] = 500
 
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_7-9/training_files', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_7-9/training_files', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 
-with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_10-4/training_files', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_10-4/training_files', 'rb') as f:
     training_params1, features1, val_params1, val_features1, testing_params1, testing_features1, model_params1, k_range1 = pickle.load(
         f)
 
 myEmulator = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_7-9',
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_7-9',
                       name='emulator_7-9_mini')
 
 myEmulator1 = emulator(restore=True, use_log=False,
-                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/model_files_10-4',
+                      files_dir='/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_10-4',
                       name='emulator_10-4_mini')
 # print(myEmulator.NN.summary())
 # ind = testing_params['L_X'] > 38
@@ -66,7 +66,7 @@ plt.legend(handles=[red_line, blue_line], loc='upper right', frameon=False, prop
 plt.xticks(fontsize=24)
 plt.yticks(fontsize=24)
 plt.tight_layout()
-plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/results_emulator_mini')
+plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/results_emulator_mini_centered_on_full_range')
 
 plt.show()
 
