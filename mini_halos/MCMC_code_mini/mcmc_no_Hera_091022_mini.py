@@ -140,9 +140,9 @@ k_max = 1.73339733
 emulator_k_modes = 10 ** (np.linspace(np.log10(k_min), np.log10(k_max), num=100))[30:]
 
 # luminosity function real data
-with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.json', 'r') as openfile:
-    # Reading from json file
-    UV_LU_data = json.load(openfile)
+# with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.json', 'r') as openfile:
+#     # Reading from json file
+#     UV_LU_data = json.load(openfile)
 
 # restore NN
 
@@ -306,7 +306,7 @@ def lnlike(theta):
 def lnprior(theta):
     F_STAR10, F_STAR7_MINI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, M_TURN, L_X, NU_X_THRESH, = theta
 
-    if (-3.0 <= F_STAR10 <= -0.5 and -3.0 <= F_ESC10 <= 0.0 and 38 <= L_X <= 42 and 8 <= M_TURN <= 9.5
+    if (-3.0 <= F_STAR10 <= -0.5 and -3.0 <= F_ESC10 <= 0.0 and 38 <= L_X <= 42 and 8 <= M_TURN <= 1.0
             and -0.2 <= ALPHA_STAR <= 1 and -1 <= ALPHA_ESC <= 1 and -3.5 <= F_STAR7_MINI <= -1
             and 0.1 <= NU_X_THRESH <= 1.5 and -0.5 <= ALPHA_STAR_MINI <= 0.5 and -3 <= F_ESC7_MINI <= 0):
         return 0.0
@@ -355,10 +355,10 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
             for i in range(samples.shape[2]):
                 GR += [GRforParameter(samples[:, :, i])]
                 tmp = np.abs((1 - np.array(GR) < 10 ** (-5)))
-            count += 4000
+            count += niter
             print('position: ', pos, 'GR: ', GR, '\nnum of iterations: ', count)
-            break
-            if np.all(tmp):
+
+            if np.all(tmp) or count >= 60000:
                 flag = False
             else:
                 p0 = pos
@@ -367,7 +367,7 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
 
 data = (mcmc_k_modes, ps_data79, yerr79)
 nwalkers = 24
-niter = 60000
+niter = 10000
 initial = np.array([-1.24, -2.5, 0.5, 0, -1.35, -1.35, -0.3,  8.59, 40.64, 0.72])  # best guesses
 ndim = len(initial)
 p0 = [np.array(initial) + 1e-1 * np.random.randn(ndim) for i in range(nwalkers)]

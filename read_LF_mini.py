@@ -38,7 +38,6 @@ def likelihood_for_z(z, Lf_for_z, dir_path):
     lf_data = LF_data['lfunc']
     err = LF_err['sigma']
     y_model = np.interp(Muv_data, Muv, lf_sim)
-    print(f'data: {lf_data} err: {err} prediction: {y_model}')
 
     lnlike = np.sum(-(1 / 2) * (
             ((lf_data - y_model) / err) ** 2 + np.log(2 * np.pi * err ** 2)))
