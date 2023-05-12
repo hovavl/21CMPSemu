@@ -9,7 +9,6 @@ import warnings
 import copy
 import hera_pspec as hp
 import corner
-import json
 import sys
 import datetime
 
@@ -21,14 +20,10 @@ from Classifier import SignalClassifier
 
 h0 = 0.698
 
-
-
 warnings.filterwarnings('ignore', module='hera_sim')
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 # HERA-Stack
 warnings.filterwarnings('ignore')
-
-
 
 
 def interp_Wcdf(W, k, lower_perc=0.16, upper_perc=0.84):
@@ -141,25 +136,25 @@ k_min = 0.03005976
 k_max = 1.73339733
 emulator_k_modes = 10 ** (np.linspace(np.log10(k_min), np.log10(k_max), num=100))[30:]
 # luminosity function real data
-with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.json', 'r') as openfile:
-    # Reading from json file
-    UV_LU_data = json.load(openfile)
+# with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.json', 'r') as openfile:
+#     # Reading from json file
+#     UV_LU_data = json.load(openfile)
 
 # restore NN
-
+# nn_dir = '/Users/hovavlazare/GITs/21CMPSemu'
 nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu'
 
 nn_ps = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/experimental/model_files_7-9',
+                 files_dir=f'{nn_dir}/experimental/centered_model_files_7-9',
                  name='emulator_7-9_full_range')
 nn_ps104 = emulator(restore=True, use_log=False,
-                    files_dir=f'{nn_dir}/experimental/model_files_10-4',
+                    files_dir=f'{nn_dir}/experimental/centered_model_files_10-4',
                     name='emulator_10-4_full_range')
 nn_tau = emulator(restore=True, use_log=False,
-                  files_dir=f'{nn_dir}/tau_model_files',
+                  files_dir=f'{nn_dir}/NN/tau_model_files',
                   name='tau_emulator')
 nn_xH = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/xH_model_files',
+                 files_dir=f'{nn_dir}/NN/xH_model_files',
                  name='xH_emulator')
 myClassifier79 = SignalClassifier(restore=True,
                                   files_dir=f'{nn_dir}/experimental/classifier_model_files_7-9',
@@ -167,9 +162,6 @@ myClassifier79 = SignalClassifier(restore=True,
 myClassifier104 = SignalClassifier(restore=True,
                                    files_dir=f'{nn_dir}/experimental/classifier_model_files_10-4',
                                    name='classify_NN_10-4')
-
-
-
 
 
 def culcPS(theta):
@@ -189,7 +181,7 @@ def culcPS(theta):
     return_ps = model_ps[logical_79]
     if label_pred == 1:
         return return_ps
-    return np.clip(np.random.randn(return_ps.shape[0]) * 0.5 + 2, 0, 5)
+    return np.clip(np.random.randn(return_ps.shape[0]) * 1 + 2, 0, 3)
 
 
 # calculate the power spectrum at z = 10.4
@@ -210,7 +202,7 @@ def culcPS2(theta):
     return_ps = model_ps[logical_104]
     if label_pred == 1:
         return return_ps
-    return np.clip(np.random.randn(return_ps.shape[0]) * 0.5 + 2, 0, 5)
+    return np.clip(np.random.randn(return_ps.shape[0]) * 1 + 2, 0, 3)
 
 
 """ 
@@ -366,10 +358,10 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
             for i in range(samples.shape[2]):
                 GR += [GRforParameter(samples[:, :, i])]
                 tmp = np.abs((1 - np.array(GR) < 10 ** (-5)))
-            count += 4000
+            count += niter
             print('position: ', pos, 'GR: ', GR, '\nnum of iterations: ', count)
-            break
-            if np.all(tmp):
+
+            if np.all(tmp) or count >= 70000:
                 flag = False
             else:
                 p0 = pos
@@ -378,7 +370,7 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
 
 data = (mcmc_k_modes, ps_data79, yerr79)
 nwalkers = 24
-niter = 60000
+niter = 10000
 initial = np.array([-1.24, 0.5, -1.11, 0.02, 8.59, 0.64, 40.64, 0.72, 0.8])  # best guesses
 ndim = len(initial)
 p0 = [np.array(initial) + 1e-1 * np.random.randn(ndim) for i in range(nwalkers)]
@@ -386,7 +378,7 @@ sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
 samples = sampler.get_chain()
 
 flat_samples = sampler.chain[:, :, :].reshape((-1, ndim))
-pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_no_hera.pk', 'wb'))
+pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_no_hera_centered.pk', 'wb'))
 
 print(flat_samples.shape)
 plt.ion()
