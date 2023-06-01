@@ -8,7 +8,7 @@ from Classifier import SignalClassifier
 # try Zeus21
 
 data = pickle.load(
-   open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data_mini/samples_09-05-2023_centered_z=10.4.pk', 'rb'))
+   open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data/centered_samples_10-4_2023-05-12.pk', 'rb'))
 
 
 # extra_data = pickle.load(
@@ -125,12 +125,12 @@ testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
 
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range]
-with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/centered_model_files_10-4/training_files', 'wb') as f:
+with open('/experimental/centered_model_files_10-4/training_files.pk', 'wb') as f:
     pickle.dump(files, f)
 
 exit(0)
 
-with open('/mini_halos/mini_halos_NN/model_files_10-4/training_files', 'rb') as f:
+with open('/mini_halos/mini_halos_NN/model_files_10-4/training_files.pk.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params, k_range = pickle.load(
         f)
 # myClassifier = SignalClassifier(restore=True,

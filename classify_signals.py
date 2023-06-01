@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from Classifier import SignalClassifier
 
 data = pickle.load(
-    open('/Users/hovavlazare/GITs/21CMPSemu training data/pd_training_data_mini/samples_29-04-23_z=10.4.pk', 'rb'))
+    open('/Users/hovavlazare/GITs/21CMPSemu training data/ps_training_data_mini/samples_2023-05-09_z=7.9.pk', 'rb'))
 
 
 def classify_signal(signal):
@@ -26,18 +26,18 @@ def organize_data(data):
     model_params = list(data[0]['model params'].keys())
     # model_params += ['tau', 'x_HI']
     my_items = list(data.items())
-    # random.shuffle(my_items)
+    random.shuffle(my_items)
     counter = 0
     for i, sample in enumerate(my_items):
         counter += 1
         if i <= len(my_items):
             reduced_sample = sample[1]['ps'][30:]
             class_num = classify_signal(reduced_sample)
-            if class_counter[class_num] < 10000:
+            if class_counter[class_num] < 17000:
                 class_counter[class_num] += 1
                 params += [list(sample[1]['model params'].values())]
                 logics += [class_num]
-            if np.all(np.array(list(class_counter.values())) > 10000):
+            if np.all(np.array(list(class_counter.values())) > 17000):
                 break
     logics = np.array(logics)
     params = np.array(params)
@@ -80,10 +80,10 @@ val_params['NU_X_THRESH'] = val_params['NU_X_THRESH'] / 1000
 testing_params['NU_X_THRESH'] = testing_params['NU_X_THRESH'] / 1000
 
 files = [training_params, features, val_params, val_features, testing_params, testing_features, model_params]
-with open('/mini_halos/mini_halos_NN/classifier_model_files_10-4/training_files.pk', 'wb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/classifier_model_files_7-9_new/training_files.pk.pk.pk', 'wb') as f:
     pickle.dump(files, f)
 
-with open('/mini_halos/mini_halos_NN/classifier_model_files_10-4/training_files.pk', 'rb') as f:
+with open('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/classifier_model_files_7-9_new/training_files.pk.pk.pk', 'rb') as f:
     training_params, features, val_params, val_features, testing_params, testing_features, model_params = pickle.load(
         f)
 
@@ -94,7 +94,7 @@ myClassifier = SignalClassifier(params_train_dict=training_params, params_val_di
                                 hidden_dims=[128, 512, 256],
                                 reg_factor=0.00,
                                 dropout_rate=0.1,
-                                activation='relu', name='classify_NN__mini_104',
+                                activation='relu', name='classify_NN_mini_7-9',
                                 )
 
 print(myClassifier.NN.summary())
@@ -111,6 +111,6 @@ plt.show()
 
 test_scr = myClassifier.evaluate(testing_params, testing_features)
 predictions = myClassifier.predict(testing_params)
-myClassifier.save('/Users/hovavlazare/GITs/21CMPSemu/mini_halos_NN/classifier_model_files_10-4')
+x=1
+myClassifier.save('/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN/classifier_model_files_7-9_new')
 
-x = 1

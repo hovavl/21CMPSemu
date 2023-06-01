@@ -1,24 +1,28 @@
 import matplotlib.pyplot as plt
-import emcee
 import numpy as np
-from schwimmbad import MPIPool
+#from schwimmbad import MPIPool
+#import mpi4py
 from scipy import interpolate
+from scipy import special
 import pickle
 import warnings
 import copy
 import hera_pspec as hp
 import corner
-import json
-from scipy import special
-import sys
 import datetime
+import json
+import sys
+import zeus
+from zeus import ChainManager
+from multiprocessing import Pool
 
 sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
 
-from read_LF_mini import likelihood
+from read_LF import likelihood
 from NN_emulator import emulator
 from Classifier import SignalClassifier
-
+#import UV_LF
+h0 = 0.698
 
 warnings.filterwarnings('ignore', module='hera_sim')
 warnings.filterwarnings('ignore', category=RuntimeWarning)
@@ -26,8 +30,6 @@ warnings.filterwarnings('ignore', category=RuntimeWarning)
 # HERA-Stack
 
 warnings.filterwarnings('ignore')
-
-h0 = 0.698
 
 
 def interp_Wcdf(W, k, lower_perc=0.16, upper_perc=0.84):
@@ -92,8 +94,8 @@ band1_cov = uvp.get_cov(band1_key)
 band1_wfn = uvp.get_window_function(band1_key)
 
 # extract data
-spw = 0
-kbins = uvp.get_kparas(spw)  # after spherical binning, k_perp=0 so k_mag = k_para
+kbins = uvp.get_kparas(0)  # after spherical binning, k_perp=0 so k_mag = k_para
+
 
 ks = slice(3, None)
 xlim = (0, 2.0)
@@ -129,6 +131,7 @@ ps_data104 = y104[logical_104]
 yerr79 = yerr79[logical_79]
 yerr104 = yerr104[logical_104]
 
+
 # model constants:
 TAU_MEAN = 0.0569
 TAU_STD_HIGH = 0.0081  # not True
@@ -137,44 +140,46 @@ XH_MEAN = 0.06
 XH_STD = 0.05
 
 # data points
+
 k_min = 0.03005976
 k_max = 1.73339733
-emulator_k_modes = 10**(np.linspace(np.log10(k_min) , np.log10(k_max) , num=100))[30:]
-# luminosity function real data
+emulator_k_modes = 10 ** (np.linspace(np.log10(k_min), np.log10(k_max), num=100))[30:]
+
 # with open('/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/UV_LU_data_reduced_new.json', 'r') as openfile:
 #     # Reading from json file
 #     UV_LU_data = json.load(openfile)
 
 # restore NN
 
-nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu/mini_halos/mini_halos_NN'
-
+nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu'
+#nn_dir = '/Users/hovavlazare/GITs/21CMPSemu'
 
 nn_ps = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/centered_model_files_7-9',
-                 name='emulator_7-9_mini')
+                 files_dir=f'{nn_dir}/experimental/centered_model_files_7-9',
+                 name='emulator_7-9_full_range')
 nn_ps104 = emulator(restore=True, use_log=False,
-                    files_dir=f'{nn_dir}/centered_model_files_10-4',
-                    name='emulator_10-4_mini')
+                    files_dir=f'{nn_dir}/experimental/centered_model_files_10-4',
+                    name='emulator_10-4_full_range')
 nn_tau = emulator(restore=True, use_log=False,
-                  files_dir=f'{nn_dir}/tau_model_files',
+                  files_dir=f'{nn_dir}/NN/tau_model_files',
                   name='tau_emulator')
 nn_xH = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/xH_model_files',
+                 files_dir=f'{nn_dir}/NN/xH_model_files',
                  name='xH_emulator')
 myClassifier79 = SignalClassifier(restore=True,
-                                  files_dir=f'{nn_dir}/classifier_model_files_7-9',
-                                  name='classify_NN_mini_7-9')
+                                  files_dir=f'{nn_dir}/experimental/classifier_model_files_7-9',
+                                  name='classify_NN_7-9')
 myClassifier104 = SignalClassifier(restore=True,
-                                   files_dir=f'{nn_dir}/classifier_model_files_10-4',
-                                   name='classify_NN_mini_10-4')
+                                   files_dir=f'{nn_dir}/experimental/classifier_model_files_10-4',
+                                   name='classify_NN_10-4')
+x=1
 
 def culcPS(theta):
     tmp = copy.deepcopy(theta)
-    F_STAR10, F_STAR7_MINI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, M_TURN, L_X, NU_X_THRESH, = tmp
+    F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
-              'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
+              't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
     label_pred = np.around(myClassifier79.predict(params)[0])[0]
 
     predicted_testing_spectra = nn_ps.predict(params)
@@ -192,10 +197,10 @@ def culcPS(theta):
 # calculate the power spectrum at z = 10.4
 def culcPS2(theta):
     tmp = copy.deepcopy(theta)
-    F_STAR10, F_STAR7_MINI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, M_TURN, L_X, NU_X_THRESH, = tmp
+    F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
-              'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
+              't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
     label_pred = np.around(myClassifier104.predict(params)[0])[0]
 
     predicted_testing_spectra = nn_ps104.predict(params)
@@ -209,6 +214,8 @@ def culcPS2(theta):
         return return_ps
     return np.clip(np.random.randn(return_ps.shape[0]) * 1 + 2, 0, 3)
 
+
+
 """ 
 parameters for 21cm simulation
 same as the simulations for the training set
@@ -217,7 +224,7 @@ same as the simulations for the training set
 
 # predict luminosity function
 # def predict_luminosity(theta):
-#     return UV_LF_mini.predict_luminosity(theta)
+#     return UV_LF.predict_luminosity(theta)
 #
 #
 # # calc the luminosity function likelihood
@@ -233,10 +240,10 @@ same as the simulations for the training set
 #         for j, val in enumerate(func):
 #             if func[j] <= lum_data[j]:
 #                 like = -(1 / 2) * (
-#                         ((val - lum_data[j]) / lum_err_inf[j]) ** 2 + np.log(2 * np.pi * lum_err_inf[j] ** 2))
+#                             ((val - lum_data[j]) / lum_err_inf[j]) ** 2 + np.log(2 * np.pi * lum_err_inf[j] ** 2))
 #             else:
 #                 like = -(1 / 2) * (
-#                         ((val - lum_data[j]) / lum_err_sup[j]) ** 2 + np.log(2 * np.pi * lum_err_sup[j] ** 2))
+#                             ((val - lum_data[j]) / lum_err_sup[j]) ** 2 + np.log(2 * np.pi * lum_err_sup[j] ** 2))
 #             tot_lnlike += like
 #     return tot_lnlike
 
@@ -244,10 +251,10 @@ same as the simulations for the training set
 # predict tau
 def predict_tau(theta):
     tmp = copy.deepcopy(theta)
-    F_STAR10, F_STAR7_MINI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, M_TURN, L_X, NU_X_THRESH, = tmp
+    F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
-              'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
+              't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
     predicted_tau = nn_tau.predict(params)[0]
     return predicted_tau
 
@@ -255,22 +262,22 @@ def predict_tau(theta):
 # predict xH
 def predict_xH(theta):
     tmp = copy.deepcopy(theta)
-    F_STAR10, F_STAR7_MINI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, M_TURN, L_X, NU_X_THRESH, = tmp
+    F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
-              'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
+              't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
     predicted_xH = nn_xH.predict(params)[0]
     return max(predicted_xH, 0)
 
 
 # the model
-def model(theta, k_modes=emulator_k_modes):
+def model(theta):
     return culcPS(theta)
 
 
 # calculate the power spectrum at z = 10.4
 
-def model2(theta, k_modes=emulator_k_modes):
+def model2(theta):
     return culcPS2(theta)
 
 
@@ -299,11 +306,11 @@ def lnprior(theta):
     # n = np.random.rand()
     # if n > 0.9:
     #     print('theta: ', theta)
-    F_STAR10, F_STAR7_MINI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, M_TURN, L_X, NU_X_THRESH, = theta
+    F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = theta
 
-    if (-3.0 <= F_STAR10 <= -0.5 and -3.0 <= F_ESC10 <= 0.0 and 38 <= L_X <= 42 and 8 <= M_TURN <= 10.0
-            and -0.2 <= ALPHA_STAR <= 1 and -1 <= ALPHA_ESC <= 1 and -3.5 <= F_STAR7_MINI <= -1
-            and 0.1 <= NU_X_THRESH <= 1.5 and -0.5 <= ALPHA_STAR_MINI <= 0.5 and -3 <= F_ESC7_MINI <= 0):
+    if (-3.0 <= F_STAR10 <= 0.0 and -3.0 <= F_ESC10 <= 0.0 and 38 <= L_X <= 42 and 8 <= M_TURN <= 10
+            and -0.5 <= ALPHA_STAR <= 1 and -1 <= ALPHA_ESC <= 0.5 and 0 <= t_STAR <= 1 and -1 <= X_RAY_SPEC_INDEX <= 3
+            and 0.1 <= NU_X_THRESH <= 1.5):
         return 0.0
     # if (-1.62 <= F_STAR10 <= -1.04 and -1.47 <= F_ESC10 <= -0.52 and 39.29 <= L_X <= 41.52 and 8.2 <= M_TURN <= 9.17 and 300 <= NU_X_THRESH <=1210):
     #     return 0.0
@@ -332,57 +339,38 @@ def GRforParameter(sampMatrix):
 
 
 def main(p0, nwalkers, niter, ndim, lnprob, data):
-    with MPIPool() as pool:
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool)
+    with ChainManager(8) as cm:
+    #with Pool() as pool:
+        rank = cm.get_rank
 
-        print("Running burn-in...")
-        p0, _, _, _ = sampler.run_mcmc(p0, 5000, progress=True)
-        sampler.reset()
-        flag = True
-        count = 0
-        while (flag):
-            print("Running production...")
-            pos, prob, state, _ = sampler.run_mcmc(p0, niter, progress=True)
-            samples = sampler.get_chain()
-            print('shape of samples: ', samples.shape)
+        sampler = zeus.EnsembleSampler(nwalkers, ndim, lnprob, pool=cm.get_pool)
+        sampler.run_mcmc(p0, niter)
+        chain = sampler.get_chain(flat=True, discard=5000)
 
-            GR = []
-            for i in range(samples.shape[2]):
-                GR += [GRforParameter(samples[:, :, i])]
-                tmp = np.abs((1 - np.array(GR) < 10 ** (-5)))
-            count += niter
-            print('position: ', pos, 'GR: ', GR, '\nnum of iterations: ', count)
-            if np.all(tmp) or count >= 60000:
-                flag = False
-            else:
-                p0 = pos
-        return sampler, pos, prob, state
+    return chain
 
 
+#def run():
 data = (mcmc_k_modes, ps_data79, yerr79)
 nwalkers = 24
-niter = 10000
-initial = np.array([-1.24,-2.5, 0.5, 0, -1.35, -1.35, -0.3,  8.59, 40.64, 0.72])  # best guesses
+niter = 65000
+initial = np.array([-1.24, 0.5, -1.11, 0.02, 8.59, 0.64, 40.64, 0.72, 0.8])  # best guesses
 ndim = len(initial)
 p0 = [np.array(initial) + 1e-1 * np.random.randn(ndim) for i in range(nwalkers)]
-sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
-samples = sampler.get_chain()
+flat_samples = main(p0, nwalkers, niter, ndim, lnprob, data)
 
-flat_samples = sampler.chain[:, :, :].reshape((-1, ndim))
-pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_with_hera_mini.pk', 'wb'))
+pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_zeus_test.pk', 'wb'))
 
 print(flat_samples.shape)
 plt.ion()
-labels = [r'$\log_{10}f_{\ast,10}$',
-          r'$\log_{10}f_{\ast,7}$',
-          r'$\alpha_{\ast}$',
-          r'$\alpha_{\ast,\rm mini}$',
-          r'$\log_{10}f_{{\rm esc},10}$',
-          r'$\log_{10}f_{{\rm esc},7}$',
-          r'$\alpha_{\rm esc}$',
-          r'$\log_{10}[M_{\rm turn}/M_{\odot}]$',
-          r'$\log_{10}\frac{L_{\rm X<2 \, keV/SFR}}{\rm erg\, s^{-1}\,M_{\odot}^{-1}\,yr}$',
-          r'$E_0/{\rm keV}$']
+labels = [r'$\log_{10}f_{\ast,10}$', r'$\alpha_{\ast}$', r'$\log_{10}f_{{\rm esc},10}$', r'$\alpha_{\rm esc}$',
+          r'$\log_{10}[M_{\rm turn}/M_{\odot}]$', r'$t_{\ast}$',
+          r'$\log_{10}\frac{L_{\rm X<2 , keV/SFR}}{\rm erg\, s^{-1}\,M_{\odot}^{-1}\,yr}$',
+          r'$E_0/{\rm keV}$', r'$\alpha_{X}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
-plt.savefig(f'mcmc_with_hera_mini_{datetime.date.today()}.png')
+plt.savefig(f'mcmc_with_hera_{datetime.date.today()}_zeus_test.png')
+
+# if __name__ == '__main__':
+#     run()
+
