@@ -1,11 +1,12 @@
 import warnings
+
 warnings.filterwarnings('ignore', category=UserWarning)
 import numpy as np
 import py21cmfast as p21c
 
 user_params = {"DIM": 512, "HII_DIM": 128, "BOX_LEN": 256, "N_THREADS": 5, 'USE_RELATIVE_VELOCITIES': False,
                "POWER_SPECTRUM": 0}
-flag_options = {"USE_MASS_DEPENDENT_ZETA": True, #"USE_CMB_HEATING": False, "USE_LYA_HEATING": False,
+flag_options = {"USE_MASS_DEPENDENT_ZETA": True,  # "USE_CMB_HEATING": False, "USE_LYA_HEATING": False,
                 'USE_TS_FLUCT': True,
                 'USE_MINI_HALOS': False, "INHOMO_RECO": True}
 redshifts = [6, 7, 8, 10]
@@ -35,8 +36,11 @@ def likelihood_for_z(z, Lf_for_z, dir_path):
     LF_data = np.load(path)
     LF_err = np.load(err_path)
     Muv_data = LF_data['Muv']
-    lf_data = LF_data['lfunc']
-    err = LF_err['sigma']
+    Muv_data = Muv_data
+    lf_data = LF_data['lfunc'][Muv_data > -20]
+    err = LF_err['sigma'][Muv_data > -20]
+    Muv_data = Muv_data[Muv_data > -20]
+
     y_model = np.interp(Muv_data, Muv, lf_sim)
     # print(f'data: {lf_data} err: {err} prediction: {y_model}')
 
@@ -62,6 +66,7 @@ def predict_luminosity(theta):
 
     return Lf
 
+
 # theta_test = np.array([-1.24, 0.5, -1.11, 0.02, 8.59, 0.64, 40.64, 0.72, 0.8])
 # lnlike = likelihood(theta_test)
 # print(lnlike)
@@ -72,4 +77,4 @@ def predict_luminosity(theta):
 # err = lf_err[lf_err_keys[0]]
 # Muv = LF_10_data[LF_keys[0]]
 # Lfunc = LF_10_data[LF_keys[1]]
-# x=1
+# x = 1

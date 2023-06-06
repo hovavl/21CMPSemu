@@ -151,10 +151,10 @@ nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu/mini_halos/mini_halos_NN'
 
 
 nn_ps = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/centered_model_files_7-9',
+                 files_dir=f'{nn_dir}/model_files_7-9',
                  name='emulator_7-9_mini')
 nn_ps104 = emulator(restore=True, use_log=False,
-                    files_dir=f'{nn_dir}/centered_model_files_10-4',
+                    files_dir=f'{nn_dir}/model_files_10-4',
                     name='emulator_10-4_mini')
 nn_tau = emulator(restore=True, use_log=False,
                   files_dir=f'{nn_dir}/tau_model_files',

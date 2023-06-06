@@ -145,10 +145,10 @@ emulator_k_modes = 10 ** (np.linspace(np.log10(k_min), np.log10(k_max), num=100)
 nn_dir = '/gpfs0/elyk/users/hovavl/21CMPSemu'
 
 nn_ps = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/experimental/centered_model_files_7-9',
+                 files_dir=f'{nn_dir}/experimental/model_files_7-9',
                  name='emulator_7-9_full_range')
 nn_ps104 = emulator(restore=True, use_log=False,
-                    files_dir=f'{nn_dir}/experimental/centered_model_files_10-4',
+                    files_dir=f'{nn_dir}/experimental/model_files_10-4',
                     name='emulator_10-4_full_range')
 nn_tau = emulator(restore=True, use_log=False,
                   files_dir=f'{nn_dir}/NN/tau_model_files',
