@@ -378,7 +378,7 @@ sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
 samples = sampler.get_chain()
 
 flat_samples = sampler.chain[:, :, :].reshape((-1, ndim))
-pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_no_hera_centered.pk', 'wb'))
+pickle.dump(flat_samples, open(f'MCMC_results_{datetime.date.today()}_no_hera.pk', 'wb'))
 
 print(flat_samples.shape)
 plt.ion()
