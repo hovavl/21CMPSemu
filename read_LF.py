@@ -36,7 +36,6 @@ def likelihood_for_z(z, Lf_for_z, dir_path):
     LF_data = np.load(path)
     LF_err = np.load(err_path)
     Muv_data = LF_data['Muv']
-    Muv_data = Muv_data
     lf_data = LF_data['lfunc'][Muv_data > -20]
     err = LF_err['sigma'][Muv_data > -20]
     Muv_data = Muv_data[Muv_data > -20]
