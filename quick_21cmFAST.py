@@ -2,10 +2,10 @@ import sys
 import py21cmfast as p21c
 import time
 import pickle
-from simulations.tau import calc_tau
-from simulations.power_spectrum import powerspectra
+from tau import calc_tau
+from power_spectrum import powerspectra
 
-sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
+sys.path.insert(1, '/gpfs0/elyk/users/hovavl')
 
 user_params = {"DIM": 512, "HII_DIM": 128, "BOX_LEN": 256, "N_THREADS": 1, 'USE_RELATIVE_VELOCITIES': True,
                'DO_VCB_FIT': True,
