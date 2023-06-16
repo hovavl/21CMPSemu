@@ -352,7 +352,7 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
                 tmp = np.abs((1 - np.array(GR) < 10 ** (-5)))
             count += niter
             print('position: ', pos, 'GR: ', GR, '\nnum of iterations: ', count)
-            if np.all(tmp) or count >= 60000:
+            if np.all(tmp) or count >= 70000:
                 flag = False
             else:
                 p0 = pos
