@@ -2,11 +2,10 @@ import numpy as np
 import py21cmfast as p21c
 import time
 from scipy.interpolate import interp1d, splev, splrep
-from simulations.tau import calc_tau
-from simulations.power_spectrum import powerspectra
+from tau import calc_tau
+from power_spectrum import powerspectra
 import pickle
 import matplotlib as mpl
-import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 from NN_emulator import emulator
 import matplotlib.pylab as pylab
@@ -27,7 +26,7 @@ user_params = {"DIM": 512, "HII_DIM": 128, "BOX_LEN": 256, "N_THREADS": 5, 'USE_
                "POWER_SPECTRUM": 5}
 flag_options = {"USE_MASS_DEPENDENT_ZETA": True, "USE_CMB_HEATING": False, "USE_LYA_HEATING": False,
                 'USE_TS_FLUCT': True,
-                'USE_MINI_HALOS':False, "INHOMO_RECO": True}
+                'USE_MINI_HALOS': True, "INHOMO_RECO": True}
 
 cosmo_params = {"hlittle": 0.6736, "OMb": 0.0493, "OMm": 0.3153,
                 "A_s": 2.1e-9, "POWER_INDEX": 0.9649}
@@ -70,7 +69,7 @@ def run(theta):
     output = {'astro_params': astro_params,
               'global_xH': global_xH,
               'tau': tau,
-              'T_b':T_b,
+              'T_b': T_b,
               'z_global': z_global
               }
 
@@ -85,8 +84,7 @@ def run(theta):
     output['data_PS'] = data_PS
     output['z_PS'] = z_PS
     x = 1
-    with open('/Users/hovavlazare/GITs/21CMPSemu/simulations/simulation_resutls/high_likelihood_no_mini_Lx39_Tb_3-3-1.pk',
-              'wb') as f:
+    with open('/Users/hovavlazare/GITs/21CMPSemu/simulations/simulation_resutls/high_likelihood_with_MCGs_lx=41_new_UVLF_Tb.pk','wb') as f:
         pickle.dump(output, f)
 
 
@@ -122,7 +120,7 @@ def extractPS(data_PS,
     return k_range, delta_data_new
 
 
-# run([-1.15,-2.72, 0.28, -0.02, -1.44, -2.32, 0.63,  9.41, 39, 0.77])
+# run([-1.22, -2.72, 0.51, -0.02, -1.42, -2.32, 0.11, 8.59, 41, 0.74])
 # exit(0)
 
 # with open('/Users/hovavlazare/GITs/21CMPSemu/simulations/simulation_resutls/high_likelihood_Lx_38_no_mini.pk', 'rb') as f:
@@ -152,7 +150,6 @@ with open(
         'rb') as f5:
     output_mini_halos_low_Lx = pickle.load(f5)
 
-
 with open(
         '/Users/hovavlazare/GITs/21CMPSemu/simulations/simulation_resutls/high_likelihood_Lx_38_mini_with_Tb.pk',
         'rb') as f5:
@@ -163,6 +160,15 @@ with open(
         'rb') as f5:
     output_no_mini_v331 = pickle.load(f5)
 
+with open(
+        '/Users/hovavlazare/GITs/21CMPSemu/simulations/simulation_resutls/high_likelihood_no_MCGs_lx=39_new_UVLF.pk',
+        'rb') as f5:
+    output_no_mini_UVLF20 = pickle.load(f5)
+
+with open(
+        '/Users/hovavlazare/GITs/21CMPSemu/simulations/simulation_resutls/high_likelihood_with_MCGs_lx=39_new_UVLF.pk',
+        'rb') as f5:
+    output_with_mini_UVLF20 = pickle.load(f5)
 
 z_glob = output_mini_halos_Tb['z_global']
 T_b = output_mini_halos_Tb['T_b']
@@ -179,10 +185,10 @@ T_b = output_mini_halos_Tb['T_b']
 nn_dir = '/Users/hovavlazare/GITs/21CMPSemu/mini_halos/mini_halos_NN'
 
 nn_ps_centered = emulator(restore=True, use_log=False,
-                          files_dir=f'{nn_dir}/centered_model_files_7-9',
+                          files_dir=f'{nn_dir}/retrained_model_files_7-9_v2',
                           name='emulator_7-9_mini')
 nn_ps104_centered = emulator(restore=True, use_log=False,
-                             files_dir=f'{nn_dir}/centered_model_files_10-4',
+                             files_dir=f'{nn_dir}/retrained_model_files_10-4_v2',
                              name='emulator_10-4_mini')
 
 nn_ps = emulator(restore=True, use_log=False,
@@ -192,22 +198,21 @@ nn_ps104 = emulator(restore=True, use_log=False,
                     files_dir=f'{nn_dir}/model_files_10-4',
                     name='emulator_10-4_mini')
 
-
 nn_dir = '/Users/hovavlazare/GITs/21CMPSemu/experimental'
 
 nn_ps_centered_2 = emulator(restore=True, use_log=False,
-                          files_dir=f'{nn_dir}/centered_model_files_7-9',
-                          name='emulator_7-9_full_range')
+                            files_dir=f'{nn_dir}/retrained_model_files_7-9',
+                            name='emulator_7-9_full_range')
 nn_ps104_centered_2 = emulator(restore=True, use_log=False,
-                             files_dir=f'{nn_dir}/centered_model_files_10-4',
-                             name='emulator_10-4_full_range')
+                               files_dir=f'{nn_dir}/retrained_model_files_10-4',
+                               name='emulator_10-4_full_range')
 
 nn_ps_2 = emulator(restore=True, use_log=False,
-                 files_dir=f'{nn_dir}/model_files_7-9',
-                 name='emulator_7-9_full_range')
+                   files_dir=f'{nn_dir}/model_files_7-9',
+                   name='emulator_7-9_full_range')
 nn_ps104_2 = emulator(restore=True, use_log=False,
-                    files_dir=f'{nn_dir}/model_files_10-4',
-                    name='emulator_10-4_full_range')
+                      files_dir=f'{nn_dir}/model_files_10-4',
+                      name='emulator_10-4_full_range')
 
 
 def predict_ps(params_d):
@@ -249,16 +254,18 @@ def predict_ps_centered_no_mini(params_d):
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
 
-
     predicted_testing_spectra_104 = nn_ps104_centered_2.predict(params)[0]
     predicted_testing_spectra_79 = nn_ps_centered_2.predict(params)[0]
     return predicted_testing_spectra_104, predicted_testing_spectra_79
 
-theta = np.array([-1.15,-2.72, 0.28, -0.02, -1.44, -2.32, 0.63,  9.41, 39, 0.77])
-theta_no_mini =  np.array([-1.15, 0.28, -1.44, 0.63, 9.41, 0.5, 39, 0.77, 1])
 
-theta_arr = np.array([np.append(np.append(theta[:8], [38 + i*0.5]), theta[-1]) for i in range(9)])
+# theta = np.array([-1.15,-2.72, 0.28, -0.02, -1.44, -2.32, 0.63,  9.41, 39, 0.77])
+# theta_no_mini =  np.array([-1.15, 0.28, -1.44, 0.63, 9.41, 0.5, 39, 0.77, 1])
 
+theta = np.array([-1.22, -2.72, 0.51, -0.02, -1.42, -2.32, 0.11, 8.59, 39, 0.74])
+theta_no_mini = np.array([-1.22, 0.51, -1.03, 0.11, 8.59, 0.5, 39, 0.74, 1.0])
+
+theta_arr = np.array([np.append(np.append(theta[:8], [38 + i * 0.5]), theta[-1]) for i in range(9)])
 
 pred_arr_79 = []
 pred_arr_79_cen = []
@@ -273,17 +280,11 @@ pred_arr_104_cen = []
 #     pred_arr_104_cen += [ps_pred_104_centered]
 
 
-
-
-
-
-
 ps_pred_104, ps_pred_79 = predict_ps(theta)
 ps_pred_104_centered, ps_pred_79_centered = predict_ps_centered(theta)
 
 ps_pred_104_2, ps_pred_79_2 = predict_ps_no_mini(theta_no_mini)
 ps_pred_104_centered_2, ps_pred_79_centered_2 = predict_ps_centered_no_mini(theta_no_mini)
-
 
 z = 7.9
 # k_range, ps_mini = extractPS(output_mini['data_PS'], output_mini['z_PS'], z)
@@ -300,6 +301,8 @@ k_range, ps_mini_low_lx = extractPS(output_mini_halos_low_Lx['data_PS'], output_
 
 k_range, ps_low_v331 = extractPS(output_no_mini_v331['data_PS'], output_no_mini_v331['z_PS'], z)
 
+_, ps_no_mini_UVLF20 = extractPS(output_no_mini_UVLF20['data_PS'], output_no_mini_UVLF20['z_PS'], z)
+_, ps_with_mini_UVLF20 = extractPS(output_with_mini_UVLF20['data_PS'], output_with_mini_UVLF20['z_PS'], z)
 
 data_ps_104 = [1.70873566e+03, 6.82980246e+03, 2.79538804e+04, 6.74402430e+04, 5.98603267e+05, 4.84372271e+05,
                5.57589947e+05, 4.78555004e+05, 9.54421269e+05, 1.69729069e+06, 1.96517410e+06, 5.76079699e+06]
@@ -348,13 +351,16 @@ k_const = 0.134
 #
 # exit(0)
 
-fig = plt.figure(figsize=(10,8))
-#plt.loglog(k_range, ps_mini[30:], color='black', ls='solid', label='Including mini halos')
-#plt.loglog(k_range, ps_no_mini[30:], color='black', ls='dashed', label='Not including mini halos')
-plt.loglog(k_range, ps_low_lx[30:], color='black', ls='solid', label=r'$L_{\rm X} = 10^{39}$ without MCGs', linewidth = 3)
-plt.loglog(k_range, ps_mini_low_lx[30:], color='salmon', ls='solid', label=r'$L_{\rm X} = 10^{39}$' + ' with MCGs', linewidth = 3)
-#plt.loglog(k_range, ps_low_v331[30:], color='deepskyblue', ls='solid', label=r'$L_{\rm X} = 10^{39}$' + ' without MCGs v 3.3.1', linewidth = 3)
-
+fig = plt.figure(figsize=(10, 8))
+# plt.loglog(k_range, ps_mini[30:], color='black', ls='solid', label='Including mini halos')
+# plt.loglog(k_range, ps_no_mini[30:], color='black', ls='dashed', label='Not including mini halos')
+# plt.loglog(k_range, ps_low_lx[30:], color='black', ls='solid', label=r'$L_{\rm X} = 10^{39}$ without MCGs', linewidth=3)
+# plt.loglog(k_range, ps_mini_low_lx[30:], color='salmon', ls='solid', label=r'$L_{\rm X} = 10^{39}$' + ' with MCGs',
+#            linewidth=3)
+plt.loglog(k_range, ps_no_mini_UVLF20[30:], color='black', ls='solid',
+           label=r'$L_{\rm X} = 10^{39}$' + ' without MCGs $M_{\\rm UV} >-20$', linewidth=3)
+plt.loglog(k_range, ps_with_mini_UVLF20[30:], color='salmon', ls='solid',
+           label=r'$L_{\rm X} = 10^{39}$' + ' with MCGs $M_{\\rm UV} >-20$', linewidth=3)
 # plt.loglog(k_range, ps_pred_79, color='salmon', ls='dashed', label=' Not including mini halos- NN prediction \n')
 plt.loglog(k_range, ps_pred_79_centered, color='salmon', ls='dotted',
            label='With MCGs - NN prediction')#\n Retrained model')
@@ -376,8 +382,8 @@ plt.ylim(20, 20000)
 plt.xlim(np.min(k_range), np.max(k_range))
 plt.xticks(ticks=[0.134, 1], fontsize=32)
 plt.yticks(fontsize=32)
-plt.legend(frameon=False, loc='upper left', fontsize = 22)
+plt.legend(frameon=False, loc='upper left', fontsize=26)
 plt.tight_layout()
-plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/PS_compare_Lx39_final.png')
+plt.savefig('/Users/hovavlazare/GITs/21CMPSemu/images/PS_compare_Lx39_UVLF>-20_v2.png')
 
 # run([-1.15,-2.78, 0.29, 0.03, -0.86, -2.31, 0.01,  9.41, 40.50, 0.7])
