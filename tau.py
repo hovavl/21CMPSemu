@@ -8,7 +8,7 @@ import sys
 from scipy import integrate
 import matplotlib.pyplot as plt
 from astropy import constants as const
-tmp1 = 0
+
 #%% Set constants for calculations
 G = const.G #m^3 kg^-1 s^-2
 c = const.c #m/s
