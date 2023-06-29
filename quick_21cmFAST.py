@@ -3,7 +3,7 @@ import py21cmfast as p21c
 import time
 import pickle
 
-sys.path.insert(1, '/gpfs0/elyk/users/hovavl')
+sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
 from tau import calc_tau
 from power_spectrum import powerspectra
 
