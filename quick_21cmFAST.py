@@ -41,6 +41,7 @@ def run(theta):
                                                       'Gamma12_box', 'J_21_LW_box'},
                                    flag_options=flag_options,
                                    astro_params=astro_params,
+                                   cosmo_params=cosmo_params,
                                    direc='_cache')
     end = time.time()
     elapsed_time = time.strftime('%H:%M:%S', time.gmtime(end - start))
