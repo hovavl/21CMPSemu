@@ -11,7 +11,7 @@ from power_spectrum import powerspectra
 
 user_params = {"DIM": 512, "HII_DIM": 128, "BOX_LEN": 256, "N_THREADS": 1, 'USE_RELATIVE_VELOCITIES': True,
                'DO_VCB_FIT': True,
-               "POWER_SPECTRUM": 5}
+               "POWER_SPECTRUM": 6}
 flag_options = {"USE_MASS_DEPENDENT_ZETA": True, "USE_CMB_HEATING": False, "USE_LYA_HEATING": False,
                 'USE_TS_FLUCT': True,
                 'USE_MINI_HALOS':False, "INHOMO_RECO": True}
@@ -71,7 +71,7 @@ def run(theta):
     output['data_PS'] = data_PS
     output['z_PS'] = z_PS
     x = 1
-    with open('/gpfs0/elyk/users/hovavl/21CMPSemu/simulations/simulation_resutls/high_likelihood_no_MCGs_lx=39_UVLF>-20.pk',
+    with open('/gpfs0/elyk/users/hovavl/21CMPSemu/simulations/testFDM.pk',
               'wb') as f:
         pickle.dump(output, f)
 
