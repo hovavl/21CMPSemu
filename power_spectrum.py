@@ -5,7 +5,7 @@ import numpy as np
 from powerbox.tools import get_power
 from scipy.interpolate import interp1d
 
-tmp1 = 333
+
 def compute_power(
    box,
    length,
