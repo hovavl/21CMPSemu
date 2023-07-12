@@ -118,7 +118,7 @@ def culcPS(theta):
               'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
     label_pred = np.around(myClassifier79.predict(params)[0])[0]
     if label_pred == 0:
-        return np.clip(np.random.randn(kbins_79.shape[0]/2) * 1 + 2, 0, 3)
+        return np.clip(np.random.randn(int(kbins_79.shape[0]/2)) * 1 + 2, 0, 3)
     predicted_testing_spectra = nn_ps.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(kbins_79, tck)
@@ -137,7 +137,7 @@ def culcPS2(theta):
               'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
     label_pred = np.around(myClassifier104.predict(params)[0])[0]
     if label_pred == 0:
-        return np.clip(np.random.randn(kbins_104.shape[0]/2) * 1 + 2, 0, 3)
+        return np.clip(np.random.randn(int(kbins_104.shape[0]/2)) * 1 + 2, 0, 3)
     predicted_testing_spectra = nn_ps104.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(kbins_104, tck)
