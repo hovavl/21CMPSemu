@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import emcee
 import numpy as np
 from schwimmbad import MPIPool
+import mpi4py
 from scipy import interpolate
 import pickle
 import warnings
@@ -65,9 +66,9 @@ band1_key, band2_key = uvp.get_all_keys()
 
 # get data
 band2_wfn = uvp.get_window_function(band2_key)
-
+w_mat_79 = band2_wfn[0, 3:27, 3:27]
 band1_wfn = uvp.get_window_function(band1_key)
-
+w_mat_104 = band1_wfn[0, 3:27, 3:27]
 
 # model constants:
 TAU_MEAN = 0.0569
@@ -116,17 +117,15 @@ def culcPS(theta):
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
     label_pred = np.around(myClassifier79.predict(params)[0])[0]
-
+    if label_pred == 0:
+        return np.clip(np.random.randn(kbins_79.shape[0]/2) * 1 + 2, 0, 3)
     predicted_testing_spectra = nn_ps.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(kbins_79, tck)
 
-    w_mat = band2_wfn[0, 3:27, 3:27]
-    model_ps = np.dot(w_mat, model_ps)
+    model_ps = np.dot(w_mat_79, model_ps)
     return_ps = model_ps[odd_k]
-    if label_pred == 1:
-        return return_ps
-    return np.clip(np.random.randn(return_ps.shape[0]) * 1 + 2, 0, 3)
+    return return_ps
 
 
 # calculate the power spectrum at z = 10.4
@@ -137,13 +136,13 @@ def culcPS2(theta):
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               'F_STAR7_MINI': [F_STAR7_MINI], 'ALPHA_STAR_MINI': [ALPHA_STAR_MINI], 'F_ESC7_MINI': [F_ESC7_MINI]}
     label_pred = np.around(myClassifier104.predict(params)[0])[0]
-
+    if label_pred == 0:
+        return np.clip(np.random.randn(kbins_104.shape[0]/2) * 1 + 2, 0, 3)
     predicted_testing_spectra = nn_ps104.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(kbins_104, tck)
 
-    w_mat = band1_wfn[0, 3:27, 3:27]
-    model_ps = np.dot(w_mat, model_ps)
+    model_ps = np.dot(w_mat_104, model_ps)
     return_ps = model_ps[even_k]
     if label_pred == 1:
         return return_ps
