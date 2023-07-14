@@ -391,4 +391,4 @@ labels = [r'$\log_{10}f_{\ast,10}$',
           r'$E_0/{\rm keV}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
-plt.savefig(f'mcmc_no_hera_mini_{datetime.date.today()}.png')
+plt.savefig(f'high_prior_mcmc_no_hera_mini_{datetime.date.today()}.png')
