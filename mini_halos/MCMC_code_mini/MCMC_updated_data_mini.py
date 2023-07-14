@@ -301,7 +301,7 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
 data = (kbins_79, delta_79, err_79)
 nwalkers = 24
 niter = 10000
-initial = np.array([-1.24,-2.5, 0.5, 0, -1.35, -2, 0.3,  8.59, 40.0, 0.72])  # best guesses
+initial = np.array([-1.24,-1.5, 0.5, 0, -1.35, -2, 0.3,  8.59, 40.0, 0.72])  # best guesses
 ndim = len(initial)
 p0 = [np.array(initial) + 1e-1 * np.random.randn(ndim) for i in range(nwalkers)]
 sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
