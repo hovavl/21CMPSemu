@@ -87,7 +87,7 @@ y_2 = y_2C[2:]
 yerr_2 = yerr_2C[2:]
 
 even_ind = np.array([i % 2 == 0 for i in range(len(y_1))])
-odd_ind = ~even_ind
+odd_ind = np.array([i % 2 == 1 for i in range(len(y_2))])
 
 y_1 = y_1[even_ind]
 yerr_1 = yerr_1[even_ind]
