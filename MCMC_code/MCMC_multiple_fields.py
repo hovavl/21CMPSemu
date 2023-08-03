@@ -149,17 +149,15 @@ def culcPS(theta):
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
     label_pred = np.around(myClassifier79.predict(params)[0])[0]
-
+    if label_pred == 0:
+        return np.clip(np.random.randn(int(k_2.shape[0] / 2)) * 1 + 2, 0, 3)
     predicted_testing_spectra = nn_ps.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(k_2, tck)
 
-    w_mat = win2
-    model_ps = np.dot(w_mat, model_ps)
+    model_ps = np.dot(win2, model_ps)
     return_ps = model_ps[odd_ind]
-    if label_pred == 1:
-        return return_ps
-    return np.clip(np.random.randn(return_ps.shape[0]) * 1 + 2, 0, 3)
+    return return_ps
 
 
 # calculate the power spectrum at z = 10.4
@@ -170,17 +168,15 @@ def culcPS2(theta):
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
     label_pred = np.around(myClassifier104.predict(params)[0])[0]
-
+    if label_pred == 0:
+        return np.clip(np.random.randn(int(k_1.shape[0] / 2)+1) * 1 + 2, 0, 3)
     predicted_testing_spectra = nn_ps104.predict(params)
     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
     model_ps = interpolate.splev(k_1, tck)
 
-    w_mat = win1
-    model_ps = np.dot(w_mat, model_ps)
+    model_ps = np.dot(win1, model_ps)
     return_ps = model_ps[even_ind]
-    if label_pred == 1:
-        return return_ps
-    return np.clip(np.random.randn(return_ps.shape[0]) * 1 + 2, 0, 3)
+    return return_ps
 
 
 
