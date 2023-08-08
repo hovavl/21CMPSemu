@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import emcee
 import numpy as np
 from schwimmbad import MPIPool
-#import mpi4py
+# import mpi4py
 from scipy import interpolate
 from scipy import special
 import pickle
@@ -20,7 +20,8 @@ sys.path.insert(1, '/gpfs0/elyk/users/hovavl/21CMPSemu')
 from read_LF import likelihood
 from NN_emulator import emulator
 from Classifier import SignalClassifier
-#import UV_LF
+
+# import UV_LF
 h0 = 0.698
 
 warnings.filterwarnings('ignore', module='hera_sim')
@@ -30,7 +31,6 @@ warnings.filterwarnings('ignore', category=RuntimeWarning)
 
 warnings.filterwarnings('ignore')
 
-
 # each field is an independent file, containing Band 1 and Band 2
 ### update this to the correct path ('/gpfs0/elyk/users/hovavl/...')
 # just load field 1 for now
@@ -39,66 +39,67 @@ uvp_xtk_dsq_1 = []
 uvp_xtk_dsq_2 = []
 for field in 'ABCDE':
     uvp = hera_pspec.UVPSpec()
-    uvp.read_hdf5(f'/gpfs0/elyk/users/hovavl/python_modules/H1C_IDR3_Power_Spectra/SPOILERS/All_Epochs_Power_Spectra/results_files/Deltasq_Band_1_Field_{field}.h5')
+    uvp.read_hdf5(
+        f'/gpfs0/elyk/users/hovavl/python_modules/H1C_IDR3_Power_Spectra/SPOILERS/All_Epochs_Power_Spectra/results_files/Deltasq_Band_1_Field_{field}.h5')
     uvp_xtk_dsq_1.append(uvp)
 
     uvp = hera_pspec.UVPSpec()
-    uvp.read_hdf5(f'/gpfs0/elyk/users/hovavl/python_modules/H1C_IDR3_Power_Spectra/SPOILERS/All_Epochs_Power_Spectra/results_files/Deltasq_Band_2_Field_{field}.h5')
+    uvp.read_hdf5(
+        f'/gpfs0/elyk/users/hovavl/python_modules/H1C_IDR3_Power_Spectra/SPOILERS/All_Epochs_Power_Spectra/results_files/Deltasq_Band_2_Field_{field}.h5')
     uvp_xtk_dsq_2.append(uvp)
 
-u_1C = uvp_xtk_dsq_1[2]
-u_1D = uvp_xtk_dsq_1[3]
-u_2C = uvp_xtk_dsq_2[2]
+# u_1C = uvp_xtk_dsq_1[2]
+# u_1D = uvp_xtk_dsq_1[3]
+# u_2C = uvp_xtk_dsq_2[2]
 
-spw = 0#i because we're loading only one band into each object
+#spw = 0  # i because we're loading only one band into each object
 
-kp_1 = u_1C.get_kparas(spw)
-ks_1 = slice(np.argmin(np.abs(kp_1 - 0.128)), None, 1)
-
-y_1C = np.real(u_1C.data_array[spw].squeeze().copy()[ks_1].copy())
-y_1C[y_1C < 0] *= 0
-yerr_1C = np.sqrt(np.diagonal(u_1C.cov_array_real[spw].squeeze()))[ks_1]
-
-y_1D = np.real(u_1D.data_array[spw].squeeze().copy()[ks_1].copy())
-y_1D[y_1D < 0] *= 0
-yerr_1D = np.sqrt(np.diagonal(u_1D.cov_array_real[spw].squeeze()))[ks_1]
-
-kbins_1 = u_1C.get_kparas(spw)
-k_1 = kbins_1[ks_1]
-
-kp_2 = u_2C.get_kparas(spw)
-ks_2 = slice(np.argmin(np.abs(kp_2 - 0.128)), None, 1)
-
-y_2C = np.real(u_2C.data_array[spw].squeeze().copy()[ks_2].copy())
-y_2C[y_2C < 0] *= 0
-yerr_2C = np.sqrt(np.diagonal(u_2C.cov_array_real[spw].squeeze()))[ks_2]
-
-kbins_2 = u_2C.get_kparas(spw)
-
-k_2 = kbins_2[ks_2]
-win1 = u_1C.window_function_array[0].squeeze()[3:,3:]
-win2 = u_2C.window_function_array[0].squeeze()[3:,3:]#[i].squeeze()[:, ks]
-
-y_1 = (y_1D+y_1C)/2
-yerr_1 = np.sqrt(yerr_1C**2 + yerr_1D**2)/np.sqrt(2)
-
-k_1 = k_1[2:]
-y_1 = y_1[2:]
-yerr_1 = yerr_1[2:]
-
-k_2 = k_2[2:]
-y_2 = y_2C[2:]
-yerr_2 = yerr_2C[2:]
-
-even_ind = np.array([i % 2 == 0 for i in range(len(y_1))])
-odd_ind = np.array([i % 2 == 1 for i in range(len(y_2))])
-
-y_1 = y_1[even_ind]
-yerr_1 = yerr_1[even_ind]
-
-y_2 = y_2[odd_ind]
-yerr_2 = yerr_2[odd_ind]
-
+# kp_1 = u_1C.get_kparas(spw)
+# ks_1 = slice(np.argmin(np.abs(kp_1 - 0.128)), None, 1)
+#
+# y_1C = np.real(u_1C.data_array[spw].squeeze().copy()[ks_1].copy())
+# y_1C[y_1C < 0] *= 0
+# yerr_1C = np.sqrt(np.diagonal(u_1C.cov_array_real[spw].squeeze()))[ks_1]
+#
+# y_1D = np.real(u_1D.data_array[spw].squeeze().copy()[ks_1].copy())
+# y_1D[y_1D < 0] *= 0
+# yerr_1D = np.sqrt(np.diagonal(u_1D.cov_array_real[spw].squeeze()))[ks_1]
+#
+# kbins_1 = u_1C.get_kparas(spw)
+# k_1 = kbins_1[ks_1]
+#
+# kp_2 = u_2C.get_kparas(spw)
+# ks_2 = slice(np.argmin(np.abs(kp_2 - 0.128)), None, 1)
+#
+# y_2C = np.real(u_2C.data_array[spw].squeeze().copy()[ks_2].copy())
+# y_2C[y_2C < 0] *= 0
+# yerr_2C = np.sqrt(np.diagonal(u_2C.cov_array_real[spw].squeeze()))[ks_2]
+#
+# kbins_2 = u_2C.get_kparas(spw)
+#
+# k_2 = kbins_2[ks_2]
+# win1 = u_1C.window_function_array[0].squeeze()[3:,3:]
+# win2 = u_2C.window_function_array[0].squeeze()[3:,3:]#[i].squeeze()[:, ks]
+#
+# y_1 = (y_1D+y_1C)/2
+# yerr_1 = np.sqrt(yerr_1C**2 + yerr_1D**2)/np.sqrt(2)
+#
+# k_1 = k_1[2:]
+# y_1 = y_1[2:]
+# yerr_1 = yerr_1[2:]
+#
+# k_2 = k_2[2:]
+# y_2 = y_2C[2:]
+# yerr_2 = yerr_2C[2:]
+#
+# even_ind = np.array([i % 2 == 0 for i in range(len(y_1))])
+# odd_ind = np.array([i % 2 == 1 for i in range(len(y_2))])
+#
+# y_1 = y_1[even_ind]
+# yerr_1 = yerr_1[even_ind]
+#
+# y_2 = y_2[odd_ind]
+# yerr_2 = yerr_2[odd_ind]
 
 
 # model constants:
@@ -142,74 +143,167 @@ myClassifier104 = SignalClassifier(restore=True,
                                    name='classify_NN_10-4')
 
 
-def culcPS(theta):
+def ps_likelihood_1_for_field(y,y_pred, y_err, window_func, bins):
+    model_ps = np.dot(window_func, y_pred)
+    binned_ps = model_ps[bins]
+    return np.sum(np.log((1 / 2) * (1 + special.erf((y - binned_ps) / (y_err * np.sqrt(2))))))
+
+
+def ps_likelihood_2_for_field(y,y_pred, y_err, window_func, bins):
+    model_ps = np.dot(window_func, y_pred)
+    binned_ps = model_ps[bins]
+    return np.sum(np.log((1 / 2) * (1 + special.erf((y - binned_ps) / (y_err * np.sqrt(2))))))
+
+
+def ps_likelihood1(theta):
     tmp = copy.deepcopy(theta)
     F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
-    label_pred = np.around(myClassifier79.predict(params)[0])[0]
-    if label_pred == 0:
-        return np.clip(np.random.randn(int(k_2.shape[0] / 2)) * 1 + 2, 0, 3)
-    predicted_testing_spectra = nn_ps.predict(params)
-    tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
-    model_ps = interpolate.splev(k_2, tck)
 
-    model_ps = np.dot(win2, model_ps)
-    return_ps = model_ps[odd_ind]
-    return return_ps
+    u = uvp_xtk_dsq_1[0]
+    spw = 0  # i because we're loading only one band into each object
 
+    kp_1_a = u.get_kparas(spw)
+    ks_1_a = slice(np.argmin(np.abs(kp_1_a - 0.128)), None, 1)
+    k_a = kp_1_a[ks_1_a]
+    k_a = k_a[2:]
 
-# calculate the power spectrum at z = 10.4
-def culcPS2(theta):
-    tmp = copy.deepcopy(theta)
-    F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
-    params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
-              'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
-              't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
     label_pred = np.around(myClassifier104.predict(params)[0])[0]
     if label_pred == 0:
-        return np.clip(np.random.randn(int(k_1.shape[0] / 2)+1) * 1 + 2, 0, 3)
-    predicted_testing_spectra = nn_ps104.predict(params)
-    tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
-    model_ps = interpolate.splev(k_1, tck)
+        model_ps = np.clip(np.random.randn(int(k_a.shape[0])) * 1 + 2, 0, 3)
+    else:
+        predicted_testing_spectra = nn_ps104.predict(params)
+        tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
+        model_ps = interpolate.splev(k_a, tck)
 
-    model_ps = np.dot(win1, model_ps)
-    return_ps = model_ps[even_ind]
-    return return_ps
 
+    loglike = 0
+    for i in range(5):
+        u = uvp_xtk_dsq_1[i]
+        spw = 0  # i because we're loading only one band into each object
+
+        kp_1 = u.get_kparas(spw)
+        ks_1 = slice(np.argmin(np.abs(kp_1 - 0.128)), None, 1)
+
+        y = np.real(u.data_array[spw].squeeze().copy()[ks_1].copy())
+        y[y < 0] *= 0
+        yerr = np.sqrt(np.diagonal(u.cov_array_real[spw].squeeze()))[ks_1]
+
+        kbins_1 = u.get_kparas(spw)
+        k = kbins_1[ks_1]
+        win1 = u.window_function_array[0].squeeze()[3:, 3:]
+
+        k = k[2:]
+        y = y[2:]
+        yerr = yerr[2:]
+
+        even_ind = np.array([i % 2 == 0 for i in range(len(y))])
+
+        y = y[even_ind]
+        yerr = yerr[even_ind]
+
+        loglike += ps_likelihood_1_for_field(y, model_ps, yerr, win1, even_ind)
+
+    return loglike
+
+def ps_likelihood2(theta):
+    tmp = copy.deepcopy(theta)
+    F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
+    params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
+              'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
+              't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
+
+    u = uvp_xtk_dsq_2[0]
+    spw = 0  # i because we're loading only one band into each object
+
+    kp_2_a = u.get_kparas(spw)
+    ks_2_a = slice(np.argmin(np.abs(kp_2_a - 0.128)), None, 1)
+    k_a = kp_2_a[ks_2_a]
+    k_a = k_a[2:]
+
+    label_pred = np.around(myClassifier79.predict(params)[0])[0]
+    if label_pred == 0:
+        model_ps = np.clip(np.random.randn(int(k_a.shape[0])) * 1 + 2, 0, 3)
+    else:
+        predicted_testing_spectra = nn_ps.predict(params)
+        tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
+        model_ps = interpolate.splev(k_a, tck)
+
+    loglike = 0
+    for i in range(5):
+        u = uvp_xtk_dsq_2[i]
+        spw = 0  # i because we're loading only one band into each object
+
+        kp_1 = u.get_kparas(spw)
+        ks_1 = slice(np.argmin(np.abs(kp_1 - 0.128)), None, 1)
+
+        y = np.real(u.data_array[spw].squeeze().copy()[ks_1].copy())
+        y[y < 0] *= 0
+        yerr = np.sqrt(np.diagonal(u.cov_array_real[spw].squeeze()))[ks_1]
+
+        kbins_1 = u.get_kparas(spw)
+        k = kbins_1[ks_1]
+        win1 = u.window_function_array[0].squeeze()[3:, 3:]
+
+        k = k[2:]
+        y = y[2:]
+        yerr = yerr[2:]
+
+        odd_ind = np.array([i % 2 == 1 for i in range(len(y))])
+
+
+        y = y[odd_ind]
+        yerr = yerr[odd_ind]
+
+        loglike += ps_likelihood_2_for_field(y,model_ps, yerr, win1, odd_ind)
+
+    return loglike
+
+
+
+# def culcPS(theta):
+#     tmp = copy.deepcopy(theta)
+#     F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
+#     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
+#               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
+#               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
+#     label_pred = np.around(myClassifier79.predict(params)[0])[0]
+#     if label_pred == 0:
+#         return np.clip(np.random.randn(int(k_2.shape[0] / 2)) * 1 + 2, 0, 3)
+#     predicted_testing_spectra = nn_ps.predict(params)
+#     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
+#     model_ps = interpolate.splev(k_2, tck)
+#
+#     model_ps = np.dot(win2, model_ps)
+#     return_ps = model_ps[odd_ind]
+#     return return_ps
+#
+#
+# # calculate the power spectrum at z = 10.4
+# def culcPS2(theta):
+#     tmp = copy.deepcopy(theta)
+#     F_STAR10, ALPHA_STAR, F_ESC10, ALPHA_ESC, M_TURN, t_STAR, L_X, NU_X_THRESH, X_RAY_SPEC_INDEX = tmp
+#     params = {'F_STAR10': [F_STAR10], 'F_ESC10': [F_ESC10], 'L_X': [L_X], 'M_TURN': [M_TURN],
+#               'NU_X_THRESH': [NU_X_THRESH], 'ALPHA_STAR': [ALPHA_STAR], 'ALPHA_ESC': [ALPHA_ESC],
+#               't_STAR': [t_STAR], 'X_RAY_SPEC_INDEX': [X_RAY_SPEC_INDEX]}
+#     label_pred = np.around(myClassifier104.predict(params)[0])[0]
+#     if label_pred == 0:
+#         return np.clip(np.random.randn(int(k_1.shape[0] / 2) + 1) * 1 + 2, 0, 3)
+#     predicted_testing_spectra = nn_ps104.predict(params)
+#     tck = interpolate.splrep(emulator_k_modes, predicted_testing_spectra[0])
+#     model_ps = interpolate.splev(k_1, tck)
+#
+#     model_ps = np.dot(win1, model_ps)
+#     return_ps = model_ps[even_ind]
+#     return return_ps
 
 
 """ 
 parameters for 21cm simulation
 same as the simulations for the training set
 """
-
-
-# predict luminosity function
-# def predict_luminosity(theta):
-#     return UV_LF.predict_luminosity(theta)
-#
-#
-# # calc the luminosity function likelihood
-# def luminosity_func_lnlike(luminosity_func):
-#     tot_lnlike = 0
-#     redshifts = [6, 8, 10]
-#     for i, func in enumerate(luminosity_func):
-#         lum_data = UV_LU_data[str(redshifts[i])]['phi_k']
-#         lum_err_sup = UV_LU_data[str(redshifts[i])]['err_sup']
-#         lum_err_inf = UV_LU_data[str(redshifts[i])]['err_inf']
-#         # print(f'data size: {len(lum_data)} err size: {len(lum_err)} func size: {len(func)}')
-#
-#         for j, val in enumerate(func):
-#             if func[j] <= lum_data[j]:
-#                 like = -(1 / 2) * (
-#                             ((val - lum_data[j]) / lum_err_inf[j]) ** 2 + np.log(2 * np.pi * lum_err_inf[j] ** 2))
-#             else:
-#                 like = -(1 / 2) * (
-#                             ((val - lum_data[j]) / lum_err_sup[j]) ** 2 + np.log(2 * np.pi * lum_err_sup[j] ** 2))
-#             tot_lnlike += like
-#     return tot_lnlike
 
 
 # predict tau
@@ -235,20 +329,22 @@ def predict_xH(theta):
 
 
 # the model
-def model(theta):
-    return culcPS(theta)
-
-
-# calculate the power spectrum at z = 10.4
-
-def model2(theta):
-    return culcPS2(theta)
+# def model(theta):
+#     return culcPS(theta)
+#
+#
+# # calculate the power spectrum at z = 10.4
+#
+# def model2(theta):
+#     return culcPS2(theta)
 
 
 def lnlike(theta):
-    ps_lnLike = np.sum(np.log((1 / 2) * (1 + special.erf((y_2 - model(theta)) / (yerr_2 * np.sqrt(2))))))
-
-    ps104_lnLike = np.sum(np.log((1 / 2) * (1 + special.erf((y_1 - model2(theta)) / (yerr_1 * np.sqrt(2))))))
+    # ps_lnLike = np.sum(np.log((1 / 2) * (1 + special.erf((y_2 - model(theta)) / (yerr_2 * np.sqrt(2))))))
+    #
+    # ps104_lnLike = np.sum(np.log((1 / 2) * (1 + special.erf((y_1 - model2(theta)) / (yerr_1 * np.sqrt(2))))))
+    ps_lnLike = ps_likelihood2(theta)
+    ps104_lnLike = ps_likelihood1(theta)
     tau = predict_tau(theta)
     if tau > TAU_MEAN:
         tau_lnLike = (-1 / 2) * (((tau - TAU_MEAN) / TAU_STD_HIGH) ** 2 + np.log(2 * np.pi * TAU_STD_HIGH ** 2))
@@ -281,7 +377,7 @@ def lnprior(theta):
     return -np.inf
 
 
-def lnprob(theta, k_modes=emulator_k_modes, y_data=y_2, data_err=yerr_2):
+def lnprob(theta, k_modes=emulator_k_modes):
     lp = lnprior(theta)
     if not np.isfinite(lp):
         return -np.inf
@@ -302,9 +398,9 @@ def GRforParameter(sampMatrix):
     return np.sqrt((1 - 1 / n) + a / (b * n))
 
 
-def main(p0, nwalkers, niter, ndim, lnprob, data):
+def main(p0, nwalkers, niter, ndim, lnprob):
     with MPIPool() as pool:
-    #with Pool() as pool:
+        # with Pool() as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, pool=pool)
 
         print("Running burn-in...")
@@ -331,18 +427,20 @@ def main(p0, nwalkers, niter, ndim, lnprob, data):
                 p0 = pos
         return sampler, pos, prob, state
 
-#def run():
-data = (k_2, y_2, yerr_2)
+
+# def run():
+
 nwalkers = 24
 niter = 10000
 initial = np.array([-1.24, 0.5, -1.11, 0.02, 8.59, 0.64, 40.64, 0.72, 0.8])  # best guesses
 ndim = len(initial)
 p0 = [np.array(initial) + 1e-1 * np.random.randn(ndim) for i in range(nwalkers)]
-sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob, data)
+sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob)
 samples = sampler.get_chain()
 
 flat_samples = sampler.chain[:, :, :].reshape((-1, ndim))
-pickle.dump(flat_samples, open(f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results/MCMC_{datetime.date.today()}_multiple_fields.pk', 'wb'))
+pickle.dump(flat_samples, open(
+    f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results/MCMC_{datetime.date.today()}_all_fields.pk', 'wb'))
 
 print(flat_samples.shape)
 plt.ion()
@@ -352,8 +450,8 @@ labels = [r'$\log_{10}f_{\ast,10}$', r'$\alpha_{\ast}$', r'$\log_{10}f_{{\rm esc
           r'$E_0/{\rm keV}$', r'$\alpha_{X}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
-plt.savefig(f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results/MCMC_{datetime.date.today()}__multiple_fields.png')
+plt.savefig(
+    f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results/MCMC_{datetime.date.today()}_all_fields.png')
 
 # if __name__ == '__main__':
 #     run()
-
