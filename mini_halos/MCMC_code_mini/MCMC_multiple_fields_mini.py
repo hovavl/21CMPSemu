@@ -387,8 +387,8 @@ def lnprior(theta):
     F_STAR10, F_STAR7_MINI, ALPHA_STAR, ALPHA_STAR_MINI, F_ESC10, F_ESC7_MINI, ALPHA_ESC, L_X, NU_X_THRESH, = theta
 
     if (-3.0 <= F_STAR10 <= -0.0 and -3.0 <= F_ESC10 <= 0.0 and 38 <= L_X <= 42
-            and -0.2 <= ALPHA_STAR <= 1 and -1 <= ALPHA_ESC <= 1 and -2.5 <= F_STAR7_MINI <= -1.0
-            and 0.1 <= NU_X_THRESH <= 1.5 and -0.5 <= ALPHA_STAR_MINI <= 0.5 and -3 <= F_ESC7_MINI <= 0):
+            and -0.2 <= ALPHA_STAR <= 1 and -1 <= ALPHA_ESC <= 1 and -3.5 <= F_STAR7_MINI <= -1.0
+            and 0.1 <= NU_X_THRESH <= 1.5 and -0.5 <= ALPHA_STAR_MINI <= 0.5 and -4 <= F_ESC7_MINI <= 0):
         return 0.0
     # if (-1.62 <= F_STAR10 <= -1.04 and -1.47 <= F_ESC10 <= -0.52 and 39.29 <= L_X <= 41.52 and 8.2 <= M_TURN <= 9.17 and 300 <= NU_X_THRESH <=1210):
     #     return 0.0
@@ -454,7 +454,7 @@ sampler, pos, prob, state = main(p0, nwalkers, niter, ndim, lnprob)
 samples = sampler.get_chain()
 
 flat_samples = sampler.chain[:, :, :].reshape((-1, ndim))
-pickle.dump(flat_samples, open(f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results_mini/MCMC_{datetime.date.today()}_large_f*7_all_fields.pk', 'wb'))
+pickle.dump(flat_samples, open(f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results_mini/MCMC_{datetime.date.today()}_small_fesc7_all_fields.pk', 'wb'))
 
 print(flat_samples.shape)
 plt.ion()
@@ -469,5 +469,5 @@ labels = [r'$\log_{10}f_{\ast,10}$',
           r'$E_0/{\rm keV}$']
 fig = corner.corner(flat_samples, show_titles=True, labels=labels, plot_datapoints=True,
                     quantiles=[0.16, 0.5, 0.84])
-plt.savefig(f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results_mini/MCMC_{datetime.date.today()}_large_f*7_all_fields.png')
+plt.savefig(f'/gpfs0/elyk/users/hovavl/jobs/21cm_mcmc_job/MCMC_results_mini/MCMC_{datetime.date.today()}_small_fesc7_all_fields.png')
 
