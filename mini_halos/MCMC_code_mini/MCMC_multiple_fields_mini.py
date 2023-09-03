@@ -162,7 +162,7 @@ def ps_likelihood1(theta):
     kp_1_a = u.get_kparas(spw)
     ks_1_a = slice(np.argmin(np.abs(kp_1_a - 0.128)), None, 1)
     k_a = kp_1_a[ks_1_a]
-    k_a = k_a[2:]
+    k_a = k_a[2:]*h0
 
     label_pred = np.around(myClassifier104.predict(params)[0])[0]
     if label_pred == 0:
@@ -215,7 +215,7 @@ def ps_likelihood2(theta):
     kp_2_a = u.get_kparas(spw)
     ks_2_a = slice(np.argmin(np.abs(kp_2_a - 0.128)), None, 1)
     k_a = kp_2_a[ks_2_a]
-    k_a = k_a[2:]
+    k_a = k_a[2:]*h0
 
     label_pred = np.around(myClassifier79.predict(params)[0])[0]
     if label_pred == 0:
